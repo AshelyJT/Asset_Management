@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Asset Transfer{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <h1>Asset Transfer</h1>
+  <p>Initiate asset movement to other branches or to the ICT Department</p>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var messageBox = document.querySelector(".messages");
+
+      if (messageBox) {
+        setTimeout(function () {
+          messageBox.classList.add("hidden"); // Apply fade-out effect
+        }, 3000);
+        setTimeout(function () {
+          messageBox.remove(); // Remove the message box after fade-out
+        }, 4000);
+      }
+    });
+  </script>
+
+  <!-- Display any success or error messages -->
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <!-- Asset Transfer Form -->
+  <div class="container">
+    <form method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-25">
+          <label for="{{form.asset.label}}">{{form.asset.label}}</label>
+        </div>
+
+        <div class="col-75">
+          {{form.asset}}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-25">
+          <label for="{{form.from_department.label}}">{{form.from_department.label}}</label>
+        </div>
+
+        <div class="col-75">
+          {{form.from_department}}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-25">
+          <label for="{{form.to_department.label}}">{{form.to_department.label}}</label>
+        </div>
+
+        <div class="col-75">
+          {{form.to_department}}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-25">
+          <label for="reason">{{form.reason.label}}</label>
+        </div>
+
+        <div class="col-75">
+          {{form.reason}}
+        </div>
+      </div>
+
+      <div class="row">
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-paper-plane"></i>
+          Initiate Transfer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

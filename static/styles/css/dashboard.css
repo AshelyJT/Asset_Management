@@ -1,0 +1,360 @@
+:root {
+    --primary: #0056b3; /* OKZim brand blue */
+    --secondary: #e67e22;
+    --light: #f8f9fa;
+    --dark: linear-gradient(135deg, #667eea 0%, #764ba2 100%);;
+    --success: #28a745;
+    --danger: #dc3545;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: #f5f7fa;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: var(--dark);
+    color: white;
+    padding: 20px 0;
+    transition: all 0.3s;
+    position: fixed;
+    z-index: 10;
+}
+
+.sidebar-header {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li a {
+    color: white;
+    padding: 12px 20px;
+    display: block;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.sidebar-menu li a:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.sidebar-menu li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main content */
+main{
+    margin: 70px 0px 0px 250px;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.header {
+    background: white;
+    padding: 15px 25px;
+    margin-left: 300px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    position: fixed;
+    right: 0px;
+    width: 100vw;
+    z-index: 5;
+    gap: 20px;
+}
+
+.user-profile {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-info{
+    font-weight: 600;
+}
+
+.user-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Dashboard cards */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 25px;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    padding: 20px;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.bg-primary { background: var(--primary); }
+.bg-success { background: var(--success); }
+.bg-danger { background: var(--danger); }
+.bg-secondary { background: var(--secondary); }
+
+.card-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.card-title {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Recent activity */
+.recent-activity {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin: 25px;
+    padding: 20px;
+}
+
+.activity-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: var(--primary);
+}
+
+.activity-details h4 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+}
+
+.activity-details p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.activity-time {
+    color: #adb5bd;
+    font-size: 0.8rem;
+}
+
+
+
+
+
+
+
+
+/* Style the search field */
+form.example input[type=text] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid grey;
+    float: left;
+    width: 80%;
+    background: #f1f1f1;
+    border-radius: 50px;
+  }
+  
+  /* Style the submit button */
+  form.example button {
+    float: left;
+    padding: 0px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none; /* Prevent double borders */
+    cursor: pointer;
+  }
+  
+  form.example button:hover {
+    background: #0b7dda;
+  }
+  
+  /* Clear floats */
+  form.example::after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+
+
+
+
+
+
+
+
+
+
+* {box-sizing: border-box}
+
+/* styles for all buttons */
+.logout button {
+  background-color: #04AA6D;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+.logout button:hover {
+  opacity:1;
+}
+
+/* Float cancel and delete buttons and add an equal width */
+.logout .cancelbtn, .logout .deletebtn {
+  float: left;
+  width: 50%;
+}
+
+.logout .cancelbtn {
+  background-color: #ccc;
+  color: black;
+}
+
+.logout .deletebtn {
+  background-color: #f44336;
+}
+
+/* Add padding and center-align text to the container */
+.logout .container {
+  padding: 16px;
+  text-align: center;
+}
+
+/* The Modal (background) */
+.logout .modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: #474e5d;
+  padding-top: 50px;
+}
+
+/* Modal Content/Box */
+.logout .modal-content {
+  background-color: #fefefe;
+  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border: 1px solid #888;
+  width: 50%; /* Could be more or less, depending on screen size */
+}
+
+/* Style the horizontal ruler */
+.logout hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+
+.logout p {
+  color: black;
+}
+
+/* The Modal Close Button (x) */
+.logout .close {
+  position: absolute;
+  right: 35px;
+  top: 15px;
+  font-size: 40px;
+  font-weight: bold;
+  color: #f1f1f1;
+}
+
+.logout .close:hover,
+.logout .close:focus {
+  color: #f44336;
+  cursor: pointer;
+}
+
+/* Clear floats */
+.logout .clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Change styles for cancel button and delete button on extra small screens */
+@media screen and (max-width: 300px) {
+    .logout .cancelbtn, .deletebtn {
+    width: 100%;
+  }
+}

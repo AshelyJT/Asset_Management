@@ -1,0 +1,88 @@
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2>OKZim ICT Assets</h2>
+    </div>
+
+    <ul class="sidebar-menu">
+        <li>
+            <a href="{% url 'dashboard' %}" class="active">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+        </li>
+        {% if user.is_staff %}
+        <li>
+            <a href="{% url 'asset_management' %}">
+                <i class="fas fa-laptop"></i>
+                Asset Management
+            </a>
+        </li>
+        {% endif %}
+        <li>
+            <a href="{% url 'transfer_asset' %}">
+                <i class="fa-solid fa-arrows-turn-right"></i>
+                Transfer Asset
+            </a>
+        </li>
+        {% if user.is_staff == False %}
+        <li>
+            <a href="">
+                <i class="fa-solid fa-question"></i>
+                Inquire Equipment
+            </a>
+        </li>
+        {% endif %}
+        <li>
+            <a href="{% url 'notifications' %}">
+                <i class="fa-solid fa-bell"></i>
+                Notifications
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'reports' %}">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'dashboard' %}" class="active">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                History
+            </a>
+        </li>
+        <li class="logout">
+            <a onclick="document.getElementById('id01').style.display='block'" style="cursor: pointer;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+            <div id="id01" class="modal">
+                <form class="modal-content" action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="container">
+                        <h1>Logout</h1>
+                        <p>Are you sure you want to logout?</p>
+                        <div class="clearfix">
+                            <button type="button" class="cancelbtn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="deletebtn">Logout</button>
+                        </div>
+                    </div>
+                    <script>
+                        // Get the modal
+                        var modal = document.getElementById('id01');
+                        
+                        // When the user clicks anywhere outside of the modal, close it
+                        window.onclick = function(event) {
+                          if (event.target == modal) {
+                            modal.style.display = "none";
+                          }
+                        }
+
+                        function closeModal(){
+                            modal.style.display = "none";
+                        }
+                        </script>
+                </form>
+            </div>
+        </li>
+    </ul>
+</div>

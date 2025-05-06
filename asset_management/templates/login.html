@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | OKZim Asset Movement</title>
+    <link rel="stylesheet" href="{% static 'styles/base.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/css/login.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="{% static 'images/okzim.png' %}" alt="Logo" class="logo" >
+            </div>
+            <div class="auth-header">
+                <h2>ICT Asset Movement</h2>
+                <p class="auth-subtitle">Sign in to your account</p>
+            </div>
+
+            {% if error %}
+                <div class="auth-alert">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" class="auth-form" action="">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" required>
+                </div>
+                <button type="submit" class="auth-btn">Sign In</button>
+            </form>
+            <form action="{% url 'back_to_landing_page' %}">
+                <button type="submit" class="auth-btn back-btn">Go Back</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

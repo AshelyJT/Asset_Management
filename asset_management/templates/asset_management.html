@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Asset Management{% endblock %}
+
+{% block content %}
+
+<div class="am">
+    <div class="container">
+        <h1>Asset Management Panel</h1>
+
+        <!-- Search Input -->
+        <input type="text" id="searchInput" placeholder="Search assets..." class="search-bar">
+
+        <!-- Filter Dropdown -->
+        <select id="categoryFilter" class="filter-dropdown">
+            <option value="">All Categories</option>
+            {% for category in asset_categories %}
+            <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+
+        <button class="btn-add-asset">Add New Assets</button>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Asset ID</th>
+                    <th>Asset Name</th>
+                    <th>Model</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Current Branch</th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody id="assetTableBody">
+                {% for asset in assets %}
+                <tr>
+                    <td>{{ asset.asset_id }}</td>
+                    <td>{{ asset.name }}</td>
+                    <td>{{ asset.model }}</td>
+                    <td class="asset-category">{{ asset.category }}</td>
+                    <td
+                        class="{% if asset.status == 'In Use' %}status-active{% elif asset.status == 'Maintenance' %}status-warning{% else %}status-idle{% endif %}">
+                        {{ asset.status }}</td>
+                    <td>{{ asset.location }}</td>
+                    <td>{{ asset.updated_at|date:"d M Y, H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No assets available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- JavaScript for Search and Filter -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let searchInput = document.getElementById("searchInput");
+        let categoryFilter = document.getElementById("categoryFilter");
+        let tableRows = document.querySelectorAll("#assetTableBody tr");
+
+        searchInput.addEventListener("keyup", function () {
+            let searchValue = searchInput.value.toLowerCase();
+            tableRows.forEach(row => {
+                let assetName = row.cells[1].textContent.toLowerCase();
+                let matches = assetName.includes(searchValue);
+                row.style.display = matches ? "" : "none";
+            });
+        });
+
+        categoryFilter.addEventListener("change", function () {
+            let selectedCategory = categoryFilter.value.toLowerCase();
+            tableRows.forEach(row => {
+                let assetCategory = row.querySelector(".asset-category").textContent.toLowerCase();
+                let matches = selectedCategory === "" || assetCategory === selectedCategory;
+                row.style.display = matches ? "" : "none";
+            });
+        });
+    });
+</script>
+
+{% endblock %}

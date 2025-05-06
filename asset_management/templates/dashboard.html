@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-cards">
+    <!-- Total Assets Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Total Assets</h3>
+            <div class="card-icon bg-primary">
+                <i class="fas fa-laptop"></i>
+            </div>
+        </div>
+        <div class="card-value">{{ total_assets }}</div>
+        <div class="card-title">Assets on this branch</div>
+    </div>
+
+    <!-- Assets Due Maintenance -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Due Maintenance</h3>
+            <div class="card-icon bg-danger">
+                <i class="fas fa-tools"></i>
+            </div>
+        </div>
+        <div class="card-value">47</div>
+        <div class="card-title">Sent for repairs/maintainance</div>
+    </div>
+
+    <!-- Active Users -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Assigned Assets</h3>
+            <div class="card-icon bg-success">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="card-value">324</div>
+        <div class="card-title">Currently assigned assets</div>
+    </div>
+
+    <!-- Warranty Expiring -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Inquiries</h3>
+            <div class="card-icon bg-secondary">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+        </div>
+        <div class="card-value">28</div>
+        <div class="card-title">Requests for equipment</div>
+    </div>
+</div>
+
+<!-- Recent Activity Section -->
+<div class="recent-activity">
+    <h2>Recent Activity</h2>
+    
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-laptop"></i>
+        </div>
+        <div class="activity-details">
+            <h4>New Asset Added</h4>
+            <p>Dell OptiPlex 7080 assigned to Harare Branch</p>
+        </div>
+        <div class="activity-time">2 hours ago</div>
+    </div>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="activity-details">
+            <h4>User Assignment</h4>
+            <p>T. Moyo assigned HP EliteBook 840 G7</p>
+        </div>
+        <div class="activity-time">5 hours ago</div>
+    </div>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <div class="activity-details">
+            <h4>Maintenance Completed</h4>
+            <p>Preventive maintenance on Bulawayo server completed</p>
+        </div>
+        <div class="activity-time">1 day ago</div>
+    </div>
+
+    <div class="activity-item">
+        <div class="activity-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="activity-details">
+            <h4>Issue Reported</h4>
+            <p>Printer malfunction at Mutare branch</p>
+        </div>
+        <div class="activity-time">2 days ago</div>
+    </div>
+</div>
+{% endblock %}

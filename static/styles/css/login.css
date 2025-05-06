@@ -1,0 +1,30 @@
+/* Auth Card */
+.auth-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+}
+
+.auth-header h2 {
+    margin: 0 0 5px;
+    font-weight: 600;
+    font-size: 24px;
+}
+
+.auth-subtitle {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+/* Alert Messages */
+.auth-alert {
+    padding: 12px;
+    background: #ffebee;
+    color: #c62828;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
