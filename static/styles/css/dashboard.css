@@ -32,6 +32,7 @@ body {
 
 .sidebar-header {
     padding: 0 20px 20px;
+    font-size: 40px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -361,3 +362,17 @@ form.example input[type=text] {
     width: 100%;
   }
 }
+
+.card{
+  border: none;
+}
+
+.card-header{
+  padding: 0px;
+}
+
+.card-header h3{
+  font-size: 20px;
+  font-weight: bold;
+}
+

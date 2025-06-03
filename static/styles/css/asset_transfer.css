@@ -46,7 +46,7 @@ h1 {
 }
 
 .btn-submit {
-  display: flex;
+  width: fit-content;
   padding: 10px 20px;
   background-color: #007bff;
   color: white;
@@ -135,4 +135,10 @@ input[type="submit"] {
 
 .hidden {
   opacity: 0; /* Fully transparent */
+}
+
+.row:last-child{
+  display: flex;
+  justify-content: end;
+  margin-top: 5px;
 }

@@ -36,11 +36,8 @@
 
 .styled-table th {
     background-color: #007bff;
-    color: white;
-}
-
-.styled-table td {
     padding: 5px;
+    color: white;
 }
 
 .styled-table tr:nth-child(even) {
@@ -82,4 +79,11 @@
 
 .btn-add-asset:hover {
     background-color: #0056b3;
+}
+
+.thead-color{
+    background-color: #007bff !important;
+    color: white;
+    font-weight: bold;
+    text-align: center;
 }
