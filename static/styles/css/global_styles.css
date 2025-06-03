@@ -1,0 +1,44 @@
+.low-hearder{
+    font-size: 24px;
+}
+
+.link{
+    color: black;
+    text-decoration: none;
+}
+
+.button-link {
+    display: block;
+    width: fit-content;
+    margin: 10px 0px;
+    padding: 10px 20px;
+    font-size: 14px;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    background-color: #007bff;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.button-link:hover {
+    background-color: #0056b3;
+}
+
+.list-group {
+    width: 100%;
+}
+
+strong{
+    display: block;
+    width: 30%;
+}
+
+.list-group-item {
+    display: flex;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}

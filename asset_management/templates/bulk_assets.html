@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Asset Management{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h2>Bulk Assets</h2>
+
+    <a href="{% url 'asset_management' %}" class="button-link">Individual Assets</a>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Asset Name</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bulk_asset in bulk_assets %}
+            <tr>
+                <td>{{ bulk_asset.name }}</td>
+                <td>{{ bulk_asset.category }}</td>
+                <td>{{ bulk_asset.status }}</td>
+                <td>{{ bulk_asset.location }}</td>
+                <td>{{ bulk_asset.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

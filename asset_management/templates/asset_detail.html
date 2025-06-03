@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="asset-detail container">
+    <div class="container">
+        <ul class="list-group">
+            <li class="list-group-item active" aria-current="true">
+                <h2 class="low-hearder">Asset Detail: {{ selected_asset.asset_tag }}</h2>
+            </li>
+            <li class="list-group-item">
+                <strong>Asset Name: </strong>{{ selected_asset.name }}
+            </li>
+            <li class="list-group-item">
+                <strong>Model:</strong> {{ selected_asset.model }}
+            </li>
+            <li class="list-group-item">
+                <strong>Category:</strong> {{ selected_asset.category }}
+            </li>
+            <li class="list-group-item">
+                <strong>Serial Number:</strong> {{ selected_asset.serial_number }}
+            </li>
+            <li class="list-group-item">
+                <strong>Status:</strong> {{ selected_asset.status }}
+            </li>
+            <li class="list-group-item">
+                <strong>Current Branch:</strong> {{ selected_asset.location }}
+            </li>
+            <li class="list-group-item">
+                <strong>Last Updated: </strong>{{ selected_asset.updated_at|date:"d M Y, H:i" }}
+            </li>
+            <li class="list-group-item">
+                <strong>Purchase Date: </strong> {{ selected_asset.purchase_date|date:"d M Y" }}
+            </li>
+            <li class="list-group-item">
+                <strong>Comment: </strong> {{ selected_asset.notes|default:"No notes available" }}
+            </li>
+        </ul>
+
+        <a href="{% url 'edit_asset' selected_asset.asset_tag %}" class="button-link">Edit Asset</a>
+        <a href="{% url 'asset_management' %}" class="button-link">Back to Asset Management</a>
+    </div>
+    {% endblock %}

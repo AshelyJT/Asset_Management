@@ -29,6 +29,9 @@ urlpatterns = [
     path('asset_management/dashboard', views.dashboard, name='dashboard'),
     path('asset_management/transfer_asset', views.transfer_asset, name='transfer_asset'),
     path('asset_management/notifications', views.show_notifications, name='notifications'),
-    path('asset_management/asset_management', views.asset_management, name='asset_management'),
-    path('reports/', views.reports, name='reports'),
+    path('asset_management/asset_manager', views.asset_management, name='asset_management'),
+    path('asset_management/asset_detail/<str:asset_tag>/', views.asset_detail, name='asset_detail'),
+    path('asset_management/asset/<str:asset_tag>/edit/', views.edit_asset, name='edit_asset'),
+    path('asset_management/reports/', views.reports, name='reports'),
+    path('asset_management/bulk_assets/', views.bulk_assets, name='bulk_assets'),
 ]

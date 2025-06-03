@@ -28,7 +28,8 @@
     margin-top: 20px;
 }
 
-.styled-table th, .styled-table td {
+.styled-table th,
+.styled-table td {
     border: 1px solid #ddd;
     text-align: left;
 }
@@ -77,9 +78,8 @@
     border-radius: 4px;
     cursor: pointer;
     gap: 15px;
-  }
-  
-  .btn-add-asset:hover {
+}
+
+.btn-add-asset:hover {
     background-color: #0056b3;
-  }
-  
+}

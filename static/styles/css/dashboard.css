@@ -126,6 +126,9 @@ main{
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    background-color: white;
+    border-bottom: none;
+    font-weight: bolder;
 }
 
 .card-icon {

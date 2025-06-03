@@ -8,17 +8,18 @@ from .models import *
 
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ('asset_tag', 'name', 'category', 'status')
+    list_display = ('name', 'model', 'category', 'location', 'status', 'asset_tag')
     list_filter = ('category', 'status', 'location')
     search_fields = ('asset_tag', 'serial_number', 'name')
     date_hierarchy = 'purchase_date'
 
-# Register all other models similarly
+# Register all models
 admin.site.register(Department)
 admin.site.register(Vendor)
 admin.site.register(AssetCategory)
 admin.site.register(AssetTransfer)
 admin.site.register(UserProfile)
+admin.site.register(BulkAsset)
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser

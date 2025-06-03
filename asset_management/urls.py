@@ -13,5 +13,8 @@ urlpatterns = [
     path('transfer_asset/', views.transfer_asset, name='transfer_asset'),
     path('notifications/', views.show_notifications, name='notifications'),
     path('asset_management/', views.asset_management, name='asset_management'),
+    path('asset_detail/<str:asset_tag>/', views.asset_detail, name='asset_detail'),
+    path('asset/<str:asset_tag>/edit/', views.edit_asset, name='edit_asset'),
     path('reports/', views.reports, name='reports'),
+    path('bulk_assets/', views.bulk_assets, name='bulk_assets'),
 ]

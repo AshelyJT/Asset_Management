@@ -88,3 +88,20 @@ class AssetTransfer(models.Model):
 
     def __str__(self):
         return f"Transfer of {self.asset.name} to {self.to_department}"
+
+
+class BulkAsset(models.Model):
+    name = models.CharField(max_length=200)
+    category = models.ForeignKey(AssetCategory, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField(default=1)
+    purchase_date = models.DateField()
+    vendor = models.ForeignKey(Vendor, on_delete=models.PROTECT)
+    status = models.CharField(max_length=20, choices=[
+        ('AVAILABLE', 'Available'),
+        ('IN USE', 'In Use'),
+        ('DEPLETED', 'Depleted')
+    ], default='AVAILABLE')
+    location = models.ForeignKey(Department, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.name} - Qty: {self.quantity}"

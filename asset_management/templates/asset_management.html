@@ -21,12 +21,12 @@
             {% endfor %}
         </select>
 
-        <button class="btn-add-asset">Add New Assets</button>
+        <a href="{% url 'bulk_assets' %}" class="button-link">Bulk Assets</a>
 
         <table class="styled-table">
             <thead>
                 <tr>
-                    <th>Asset ID</th>
+                    <th>Asset Tag</th>
                     <th>Asset Name</th>
                     <th>Model</th>
                     <th>Category</th>
@@ -38,7 +38,7 @@
             <tbody id="assetTableBody">
                 {% for asset in assets %}
                 <tr>
-                    <td>{{ asset.asset_id }}</td>
+                    <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.asset_tag }}</a></td>
                     <td>{{ asset.name }}</td>
                     <td>{{ asset.model }}</td>
                     <td class="asset-category">{{ asset.category }}</td>
