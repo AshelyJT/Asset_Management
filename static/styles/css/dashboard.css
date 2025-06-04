@@ -363,6 +363,10 @@ form.example input[type=text] {
   }
 }
 
+.card-link {
+  text-decoration: none;
+}
+
 .card{
   border: none;
 }

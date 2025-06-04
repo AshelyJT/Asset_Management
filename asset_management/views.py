@@ -109,15 +109,13 @@ def show_notifications(request):
 
 
 @login_required
-def asset_management(request):
-    asset_transfers = AssetTransfer.objects.all()
+def individual_assets_view(request):
     assets = Asset.objects.all()
     context = {
         "assets": assets,
-        "asset_transfers": asset_transfers,
         "asset_categories": AssetCategory.objects.all(),
     }
-    return render(request, "asset_management.html", context)
+    return render(request, "individual_assets.html", context)
 
 
 @login_required
@@ -129,21 +127,6 @@ def asset_detail(request, asset_tag):
         "selected_asset": selected_asset,
     }
     return render(request, "asset_detail.html", context)
-
-
-@login_required
-def edit_asset(request, asset_tag):
-    asset = get_object_or_404(Asset, asset_tag=asset_tag)
-    if request.method == "POST":
-        form = AssetForm(request.POST, instance=asset)
-        if form.is_valid():
-            form.save()
-            return redirect("asset_detail", asset_tag=asset.tag)
-    else:
-        form = AssetForm(instance=asset)
-
-    return render(request, "edit_asset.html", {"form": form, "asset": asset})
-
 
 @login_required
 def reports(request):
