@@ -75,8 +75,7 @@ class Asset(models.Model):
 class AssetTransfer(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     from_department = models.ForeignKey(
-        Department, on_delete=models.PROTECT, related_name="transfers_out",
-    )
+        Department, on_delete=models.PROTECT, related_name="transfers_out")
     to_department = models.ForeignKey(
         Department, on_delete=models.PROTECT, related_name="transfers_in"
     )

@@ -1,0 +1,18 @@
+.custom-buttons-container{
+    padding: 10px 0px;
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.custom-buttons-container .btn {
+    width: fit-content;
+}
+
+.modal_buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    gap: 10px;
+}

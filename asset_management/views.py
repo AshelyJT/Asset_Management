@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
-from .models import Asset, AssetTransfer, AssetCategory
+from .models import *
 from .forms import *
 from django.db.models import Sum
 
@@ -72,11 +72,10 @@ def transfer_asset(request):
             asset = form.cleaned_data["asset"]
             to_department = form.cleaned_data["to_department"]
             reason = form.cleaned_data["reason"]
-            from_department = form.cleaned_data["from_department"]
 
             asset_transfer = AssetTransfer.objects.create(
                 asset=asset,
-                from_department=from_department,
+                from_department=asset.location,
                 to_department=to_department,
                 reason=reason,
             )
@@ -119,12 +118,27 @@ def individual_assets_view(request):
 
 
 @login_required
-def asset_detail(request, asset_tag):
+def asset_detail(request, asset_tag):   
+    form = Modal_TransferAssetForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
+        to_department = form.cleaned_data["to_department"]
+        reason = form.cleaned_data["reason"]
+        asset_transfer = AssetTransfer.objects.create(
+            asset=selected_asset,
+            from_department=selected_asset.location,
+            to_department=to_department,
+            reason=reason,
+        )
+        asset_transfer.save()
+        messages.success(request, "Asset transfer request submitted successfully.")
+        return redirect("asset_detail", asset_tag=asset_tag)
     selected_asset = get_object_or_404(
         Asset, asset_tag=asset_tag
     )
     context = {
         "selected_asset": selected_asset,
+        "form": form,
     }
     return render(request, "asset_detail.html", context)
 
