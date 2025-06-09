@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
 
 # Register your models here.
 from django.contrib import admin
@@ -18,17 +16,22 @@ admin.site.register(Department)
 admin.site.register(Vendor)
 admin.site.register(AssetCategory)
 admin.site.register(AssetTransfer)
-admin.site.register(UserProfile)
 admin.site.register(BulkAsset)
 
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    list_display = ('username', 'email', 'branch', 'is_staff')
+@admin.register(AssetInquiry)
+class AssetInquiryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'asset_type', 'quantity', 'priority', 'status', 'submitted_date',)
+    list_filter = ('status', 'priority', 'asset_type',)
+    search_fields = ('user__username', 'description',)
+    readonly_fields = ('submitted_date',)
     fieldsets = (
-        (None, {'fields': ('username', 'password', 'branch')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        (None, {
+            'fields': ('user', 'asset_type', 'description', 'quantity',)
+        }),
+        ('Priority Information', {
+            'fields': ('priority',)
+        }),
+        ('Status', {
+            'fields': ('status', 'submitted_date',)
+        }),
     )
-    
-admin.site.register(CustomUser, CustomUserAdmin)

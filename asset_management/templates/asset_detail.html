@@ -3,6 +3,15 @@
 {% block content %}
 
 <div class="asset-detail container">
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
     <div class="container">
         <ul class="list-group">
             <li class="list-group-item active" aria-current="true">
@@ -81,8 +90,22 @@
             </div>
 
             <a href="{% url 'individual_assets' %}" class="button-link">Back to Asset Management</a>
-            
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var messageBox = document.querySelector(".messages");
+
+            if (messageBox) {
+                setTimeout(function () {
+                    messageBox.classList.add("hidden"); // Apply fade-out effect
+                }, 3000);
+                setTimeout(function () {
+                    messageBox.remove(); // Remove the message box after fade-out
+                }, 4000);
+            }
+        });
+    </script>
 
     {% endblock %}

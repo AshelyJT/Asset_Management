@@ -65,35 +65,6 @@ class ProtectedView(LoginRequiredMixin, View):
 
 
 @login_required
-def transfer_asset(request):
-    if request.method == "POST":
-        form = TransferAssetForm(request.POST)
-        if form.is_valid():
-            asset = form.cleaned_data["asset"]
-            to_department = form.cleaned_data["to_department"]
-            reason = form.cleaned_data["reason"]
-
-            asset_transfer = AssetTransfer.objects.create(
-                asset=asset,
-                from_department=asset.location,
-                to_department=to_department,
-                reason=reason,
-            )
-            asset_transfer.save()
-            messages.success(request, "Asset transfer request submitted successfully.")
-            return redirect("transfer_asset")
-        else:
-            messages.error(
-                request, "Error in form submission. Please check the details."
-            )
-
-    else:
-        form = TransferAssetForm()
-
-    return render(request, "asset_transfer.html", {"form": form})
-
-
-@login_required
 def show_notifications(request):
     # Fetch notifications from the database or any other source
     notifications = [
@@ -162,3 +133,19 @@ def bulk_assets(request):
         or 0,
     }
     return render(request, "bulk_assets.html", context)
+
+
+@login_required
+def inquire_asset(request):
+    if request.method == 'POST':
+        form = AssetInquiryForm(request.POST, user=request.user)
+        if form.is_valid():
+            inquiry = form.save(commit=False)
+            inquiry.user = request.user
+            inquiry.save()
+            messages.success(request, 'Your asset inquiry has been submitted successfully!')
+            return redirect('inquire_asset')
+    else:
+        form = AssetInquiryForm(user=request.user)
+    
+    return render(request, 'inquire_asset.html', {'form': form})

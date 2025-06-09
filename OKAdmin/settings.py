@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'asset_management',
 ]
 
-AUTH_USER_MODEL = 'asset_management.CustomUser'
+AUTH_USER_MODEL = 'auth.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

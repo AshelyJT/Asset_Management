@@ -61,3 +61,20 @@ class BulkAssetForm(forms.ModelForm):
             "status",
             "location",
         ]
+
+class AssetInquiryForm(forms.ModelForm):
+    class Meta:
+        model = AssetInquiry
+        fields = ['asset_type', 'description', 'quantity', 'priority']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Add Bootstrap classes to form fields
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
+            

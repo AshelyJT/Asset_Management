@@ -1,11 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.conf import settings
-
-
-class CustomUser(AbstractUser):
-    branch = models.ForeignKey(
-        "Department", on_delete=models.SET_NULL, null=True, blank=True)
+from django.contrib.auth.models import User
 
 
 class Department(models.Model):
@@ -15,16 +9,6 @@ class Department(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.branch_code})"
-
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    branch = models.ForeignKey(
-        Department, on_delete=models.SET_NULL, null=True, blank=True
-    )
-
-    def __str__(self):
-        return f"{self.user.username} - {self.branch}"
 
 
 class Vendor(models.Model):
@@ -75,7 +59,8 @@ class Asset(models.Model):
 class AssetTransfer(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     from_department = models.ForeignKey(
-        Department, on_delete=models.PROTECT, related_name="transfers_out")
+        Department, on_delete=models.PROTECT, related_name="transfers_out"
+    )
     to_department = models.ForeignKey(
         Department, on_delete=models.PROTECT, related_name="transfers_in"
     )
@@ -95,12 +80,60 @@ class BulkAsset(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     purchase_date = models.DateField()
     vendor = models.ForeignKey(Vendor, on_delete=models.PROTECT)
-    status = models.CharField(max_length=20, choices=[
-        ('AVAILABLE', 'Available'),
-        ('IN USE', 'In Use'),
-        ('DEPLETED', 'Depleted')
-    ], default='AVAILABLE')
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("AVAILABLE", "Available"),
+            ("IN USE", "In Use"),
+            ("DEPLETED", "Depleted"),
+        ],
+        default="AVAILABLE",
+    )
     location = models.ForeignKey(Department, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.name} - Qty: {self.quantity}"
+
+
+class AssetInquiry(models.Model):
+    ASSET_TYPES = [
+        ("LAPTOP", "Laptop"),
+        ("DESKTOP", "Desktop Computer"),
+        ("PRINTER", "Printer"),
+        ("PHONE", "Phone"),
+        ("TABLET", "Tablet"),
+        ("OTHER", "Other Equipment"),
+    ]
+
+    PRIORITY_CHOICES = [
+        ("LOW", "Low"),
+        ("MEDIUM", "Medium"),
+        ("HIGH", "High"),
+        ("CRITICAL", "Critical"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    asset_type = models.CharField(max_length=20, choices=ASSET_TYPES)
+    description = models.TextField(help_text="Why is this equipment needed?")
+    quantity = models.PositiveIntegerField(default=1)
+    priority = models.CharField(
+        max_length=10, choices=PRIORITY_CHOICES, default="MEDIUM"
+    )
+    submitted_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        default="PENDING",
+        choices=[
+            ("PENDING", "Pending Review"),
+            ("APPROVED", "Approved"),
+            ("DENIED", "Denied"),
+            ("FULFILLED", "Fulfilled"),
+        ],
+    )
+
+    def __str__(self):
+        return f"{self.get_asset_type_display()} request by {self.user.username}"
+
+    class Meta:
+        verbose_name_plural = "Asset Inquiries"
+        ordering = ["-submitted_date"]

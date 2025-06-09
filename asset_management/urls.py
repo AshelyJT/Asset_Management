@@ -10,10 +10,10 @@ urlpatterns = [
     path('protected/', views.ProtectedView.as_view(), name='protected'),
     path('back_to_landing_page/', views.back_to_landing_page, name='back_to_landing_page'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('transfer_asset/', views.transfer_asset, name='transfer_asset'),
     path('notifications/', views.show_notifications, name='notifications'),
     path('asset_management/', views.individual_assets_view, name='individual_assets'),
     path('asset_detail/<str:asset_tag>/', views.asset_detail, name='asset_detail'),
+    path('inquire/', views.inquire_asset, name='inquire_asset'),
     path('reports/', views.reports, name='reports'),
     path('bulk_assets/', views.bulk_assets, name='bulk_assets'),
 ]
