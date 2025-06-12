@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Department(models.Model):
@@ -137,3 +138,51 @@ class AssetInquiry(models.Model):
     class Meta:
         verbose_name_plural = "Asset Inquiries"
         ordering = ["-submitted_date"]
+
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('ASSET_CREATED', 'New Asset Created'),
+        ('ASSET_UPDATED', 'Asset Updated'),
+        ('ASSET_DELETED', 'Asset Deleted'),
+        ('MAINTENANCE_DUE', 'Maintenance Due'),
+        ('MAINTENANCE_COMPLETED', 'Maintenance Completed'),
+        ('ASSET_CHECKOUT', 'Asset Checked Out'),
+        ('ASSET_CHECKIN', 'Asset Checked In'),
+        ('SYSTEM_ALERT', 'System Alert'),
+    ]
+
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    related_object_id = models.PositiveIntegerField(null=True, blank=True)
+    related_content_type = models.ForeignKey(
+        'contenttypes.ContentType',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+
+    def __str__(self):
+        return f"{self.get_notification_type_display()} - {self.title}"
+
+    def mark_as_read(self):
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save()
+
+    @property
+    def is_recent(self):
+        return (timezone.now() - self.created_at).days < 1

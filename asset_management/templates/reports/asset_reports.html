@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="row">
+                        <div class="col-6">
+                            <h6>Assets Report</h6>
+                        </div>
+                        <div class="col-6 text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-sm bg-gradient-primary dropdown-toggle" type="button"
+                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Export
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                    <li><a class="dropdown-item" href="?export_format=excel">Excel</a></li>
+                                    <li><a class="dropdown-item" href="?export_format=pdf">PDF</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="row p-4">
+                        <div class="col-md-12">
+                            <form method="get">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        {{ form.status.label_tag }}
+                                        {{ form.status }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form.category.label_tag }}
+                                        {{ form.category }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form.location.label_tag }}
+                                        {{ form.location }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ form.vendor.label_tag }}
+                                        {{ form.vendor }}
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        {{ form.date_from.label_tag }}
+                                        {{ form.date_from }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.date_to.label_tag }}
+                                        {{ form.date_to }}
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-12 text-center">
+                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                        <a href="{% url 'asset_reports' %}" class="btn btn-secondary">Reset</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row px-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                Total Assets: <strong>{{ total_assets }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Asset Tag</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Model</th>
+                                    <th>Serial Number</th>
+                                    <th>Status</th>
+                                    <th>Location</th>
+                                    <th>Purchase Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                <tr>
+                                    <td>{{ asset.asset_tag }}</td>
+                                    <td>{{ asset.name }}</td>
+                                    <td>{{ asset.category }}</td>
+                                    <td>{{ asset.model }}</td>
+                                    <td>{{ asset.serial_number }}</td>
+                                    <td>
+                                        <span class="badge badge-sm 
+                                            {% if asset.status == 'OPERATIONAL' %}bg-gradient-success
+                                            {% elif asset.status == 'NON_OPERATIONAL' %}bg-gradient-warning
+                                            {% elif asset.status == 'DECOMMISSIONED' %}bg-gradient-secondary
+                                            {% else %}bg-gradient-danger{% endif %}">
+                                            {{ asset.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ asset.location }}</td>
+                                    <td>{{ asset.purchase_date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">No assets found matching your criteria.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -16,4 +16,5 @@ urlpatterns = [
     path('inquire/', views.inquire_asset, name='inquire_asset'),
     path('reports/', views.reports, name='reports'),
     path('bulk_assets/', views.bulk_assets, name='bulk_assets'),
+    path('reports/assets/', views.asset_reports, name='asset_reports'),
 ]

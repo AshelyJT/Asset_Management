@@ -33,4 +33,11 @@ urlpatterns = [
     path('asset_management/inquire/', views.inquire_asset, name='inquire_asset'),
     path('asset_management/reports/', views.reports, name='reports'),
     path('asset_management/bulk_assets/', views.bulk_assets, name='bulk_assets'),
+    path('asset_management/reports/assets/', views.asset_reports, name='asset_reports'),
+    
+    
+    path('notifications/', views.notifications_list, name='notifications_list'),
+    path('notifications/<int:pk>/mark-read/', views.mark_notification_as_read, name='mark_notification_read'),
+    path('notifications/mark-all-read/', views.mark_all_as_read, name='mark_all_notifications_read'),
+    path('notifications/count/', views.notification_count, name='notification_count'),
 ]

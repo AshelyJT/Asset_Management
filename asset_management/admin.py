@@ -1,7 +1,4 @@
 from django.contrib import admin
-
-# Register your models here.
-from django.contrib import admin
 from .models import *
 
 @admin.register(Asset)
@@ -33,5 +30,24 @@ class AssetInquiryAdmin(admin.ModelAdmin):
         }),
         ('Status', {
             'fields': ('status', 'submitted_date',)
+        }),
+    )
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('recipient', 'title', 'notification_type', 'is_read', 'created_at')
+    list_filter = ('notification_type', 'is_read', 'created_at')
+    search_fields = ('recipient__username', 'title', 'message')
+    readonly_fields = ('created_at', 'read_at')
+    fieldsets = (
+        (None, {
+            'fields': ('recipient', 'sender', 'notification_type')
+        }),
+        ('Content', {
+            'fields': ('title', 'message', 'related_object_id', 'related_content_type')
+        }),
+        ('Status', {
+            'fields': ('is_read', 'read_at', 'created_at')
         }),
     )

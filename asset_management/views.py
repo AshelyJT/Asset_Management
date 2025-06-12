@@ -4,9 +4,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
+from django.db.models import Sum
+from django.http import HttpResponse, JsonResponse
+from django.template.loader import get_template
+from django.core.paginator import Paginator
+from xhtml2pdf import pisa
+import openpyxl
+from datetime import datetime
 from .models import *
 from .forms import *
-from django.db.models import Sum
 
 
 # Create your views here.
@@ -89,7 +95,7 @@ def individual_assets_view(request):
 
 
 @login_required
-def asset_detail(request, asset_tag):   
+def asset_detail(request, asset_tag):
     form = Modal_TransferAssetForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
@@ -104,14 +110,13 @@ def asset_detail(request, asset_tag):
         asset_transfer.save()
         messages.success(request, "Asset transfer request submitted successfully.")
         return redirect("asset_detail", asset_tag=asset_tag)
-    selected_asset = get_object_or_404(
-        Asset, asset_tag=asset_tag
-    )
+    selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
     context = {
         "selected_asset": selected_asset,
         "form": form,
     }
     return render(request, "asset_detail.html", context)
+
 
 @login_required
 def reports(request):
@@ -137,15 +142,200 @@ def bulk_assets(request):
 
 @login_required
 def inquire_asset(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AssetInquiryForm(request.POST, user=request.user)
         if form.is_valid():
             inquiry = form.save(commit=False)
             inquiry.user = request.user
             inquiry.save()
-            messages.success(request, 'Your asset inquiry has been submitted successfully!')
-            return redirect('inquire_asset')
+            messages.success(
+                request, "Your asset inquiry has been submitted successfully!"
+            )
+            return redirect("inquire_asset")
     else:
         form = AssetInquiryForm(user=request.user)
-    
-    return render(request, 'inquire_asset.html', {'form': form})
+
+    return render(request, "inquire_asset.html", {"form": form})
+
+
+@login_required
+def asset_reports(request):
+    assets = Asset.objects.select_related("category", "vendor", "location").all()
+    form = AssetReportFilterForm(request.GET or None)
+
+    if form.is_valid():
+        status = form.cleaned_data.get("status")
+        category = form.cleaned_data.get("category")
+        location = form.cleaned_data.get("location")
+        vendor = form.cleaned_data.get("vendor")
+        date_from = form.cleaned_data.get("date_from")
+        date_to = form.cleaned_data.get("date_to")
+        export_format = form.cleaned_data.get("export_format")
+
+        if status:
+            assets = assets.filter(status=status)
+        if category:
+            assets = assets.filter(category=category)
+        if location:
+            assets = assets.filter(location=location)
+        if vendor:
+            assets = assets.filter(vendor=vendor)
+        if date_from:
+            assets = assets.filter(purchase_date__gte=date_from)
+        if date_to:
+            assets = assets.filter(purchase_date__lte=date_to)
+
+        if export_format:
+            if export_format == "excel":
+                return export_to_excel(assets)
+            elif export_format == "pdf":
+                return export_to_pdf(assets)
+
+    context = {
+        "assets": assets,
+        "form": form,
+        "total_assets": assets.count(),
+    }
+    return render(request, "reports/asset_reports.html", context)
+
+
+def export_to_excel(queryset):
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = "attachment; filename=assets_report.xlsx"
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Assets Report"
+
+    # Column headers
+    headers = [
+        "Asset Tag",
+        "Name",
+        "Category",
+        "Model",
+        "Serial Number",
+        "Purchase Date",
+        "Vendor",
+        "Status",
+        "Location",
+        "Notes",
+    ]
+    ws.append(headers)
+
+    # Data rows
+    for asset in queryset:
+        ws.append(
+            [
+                asset.asset_tag,
+                asset.name,
+                str(asset.category),
+                asset.model,
+                asset.serial_number,
+                asset.purchase_date.strftime("%Y-%m-%d"),
+                str(asset.vendor),
+                asset.get_status_display(),
+                str(asset.location),
+                asset.notes,
+            ]
+        )
+
+    # Auto-size columns
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.2
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+    wb.save(response)
+    return response
+
+
+def export_to_pdf(queryset):
+    template_path = "reports/pdf_template.html"
+    context = {"assets": queryset, "today": datetime.now()}
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="assets_report.pdf"'
+
+    template = get_template(template_path)
+    html = template.render(context)
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse("We had some errors generating the PDF")
+    return response
+
+
+@login_required
+def notifications_list(request):
+    notifications = Notification.objects.filter(recipient=request.user)
+    form = NotificationFilterForm(request.GET or None)
+
+    if form.is_valid():
+        notification_type = form.cleaned_data.get("notification_type")
+        is_read = form.cleaned_data.get("is_read")
+        date_from = form.cleaned_data.get("date_from")
+        date_to = form.cleaned_data.get("date_to")
+
+        if notification_type:
+            notifications = notifications.filter(notification_type=notification_type)
+        if is_read == "read":
+            notifications = notifications.filter(is_read=True)
+        elif is_read == "unread":
+            notifications = notifications.filter(is_read=False)
+        if date_from:
+            notifications = notifications.filter(created_at__gte=date_from)
+        if date_to:
+            notifications = notifications.filter(created_at__lte=date_to)
+
+    # Pagination
+    paginator = Paginator(notifications, 20)  # Show 20 notifications per page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+        "form": form,
+        "unread_count": Notification.objects.filter(
+            recipient=request.user, is_read=False
+        ).count(),
+    }
+    return render(request, "notifications/list.html", context)
+
+
+@login_required
+def mark_notification_as_read(request, pk):
+    notification = Notification.objects.get(pk=pk, recipient=request.user)
+    notification.mark_as_read()
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"success": True})
+    return redirect("notifications_list")
+
+
+@login_required
+def mark_all_as_read(request):
+    Notification.objects.filter(recipient=request.user, is_read=False).update(
+        is_read=True, read_at=timezone.now()
+    )
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"success": True})
+    return redirect("notifications_list")
+
+
+@login_required
+def notification_count(request):
+    if request.user.is_authenticated:
+        count = Notification.objects.filter(
+            recipient=request.user, is_read=False
+        ).count()
+        return JsonResponse({"count": count})
+    return JsonResponse({"count": 0})
