@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.views import View
 from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
@@ -11,6 +12,7 @@ from django.core.paginator import Paginator
 from xhtml2pdf import pisa
 import openpyxl
 from datetime import datetime
+from django.contrib.contenttypes.models import ContentType
 from .models import *
 from .forms import *
 
@@ -108,6 +110,14 @@ def asset_detail(request, asset_tag):
             reason=reason,
         )
         asset_transfer.save()
+        create_notification(
+            recipient=request.user,
+            sender=request.user,
+            notification_type="ASSET_CHECKOUT",
+            title=f"Asset Transfer for {selected_asset.category} ({selected_asset.model})",
+            message=f"This asset has been sent to {to_department.name} for this reason: {reason}",
+            related_object=asset_transfer,
+        )
         messages.success(request, "Asset transfer request submitted successfully.")
         return redirect("asset_detail", asset_tag=asset_tag)
     selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
@@ -311,6 +321,22 @@ def notifications_list(request):
     }
     return render(request, "notifications/list.html", context)
 
+def create_notification(
+    sender, recipient, notification_type, title, message, related_object=None
+):
+    notification = Notification(
+        sender=sender,
+        recipient=recipient,
+        notification_type=notification_type,
+        title=title,
+        message=message,
+        related_object_id=related_object.id if related_object else None,
+        related_content_type=ContentType.objects.get_for_model(related_object)
+        if related_object
+        else None,
+    )
+    notification.save()
+    return notification
 
 @login_required
 def mark_notification_as_read(request, pk):
