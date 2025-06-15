@@ -3,70 +3,70 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-cards">
-    <!-- Total Assets Card -->
-    <a href="{% url 'individual_assets' %}" class="card-link">
-        <div class="card">
-            <div class="card-header">
+<div class="dashboard-custom-cards">
+    <!-- Total Assets custom-Card -->
+    <a href="{% url 'individual_assets' %}" class="custom-card-link">
+        <div class="custom-card">
+            <div class="custom-card-header">
                 <h3>Total Assets</h3>
-                <div class="card-icon bg-primary">
+                <div class="custom-card-icon bg-primary">
                     <i class="fas fa-laptop"></i>
                 </div>
             </div>
-            <div class="card-value">{{ total_assets }}</div>
-            <div class="card-title">Individual Assets on this branch</div>
+            <div class="custom-card-value">{{ total_assets }}</div>
+            <div class="custom-card-title">Individual Assets on this branch</div>
         </div>
     </a>
 
-    <!-- Total Bulk Assets Card -->
-    <a href="{% url 'bulk_assets' %}" class="card-link">
-        <div class="card">
-            <div class="card-header">
+    <!-- Total Bulk Assets custom-Card -->
+    <a href="{% url 'bulk_assets' %}" class="custom-card-link">
+        <div class="custom-card">
+            <div class="custom-card-header">
                 <h3>Bulk Assets</h3>
-                <div class="card-icon bg-primary">
+                <div class="custom-card-icon bg-primary">
                     <i class="fas fa-box"></i>
                 </div>
             </div>
-            <div class="card-value">{{ total_bulk_assets }}</div>
-            <div class="card-title">Bulk assets on this branch</div>
+            <div class="custom-card-value">{{ total_bulk_assets }}</div>
+            <div class="custom-card-title">Bulk assets on this branch</div>
             <br>
         </div>
     </a>
     
     <!-- Assets Due Maintenance -->
-    <div class="card">
-        <div class="card-header">
+    <div class="custom-card">
+        <div class="custom-card-header">
             <h3>Due Maintenance</h3>
-            <div class="card-icon bg-danger">
+            <div class="custom-card-icon bg-danger">
                 <i class="fas fa-tools"></i>
             </div>
         </div>
-        <div class="card-value">47</div>
-        <div class="card-title">Sent for repairs/maintainance</div>
+        <div class="custom-card-value">47</div>
+        <div class="custom-card-title">Sent for repairs/maintainance</div>
     </div>
 
     <!-- Active Users -->
-    <div class="card">
-        <div class="card-header">
+    <div class="custom-card">
+        <div class="custom-card-header">
             <h3>Assigned Assets</h3>
-            <div class="card-icon bg-success">
+            <div class="custom-card-icon bg-success">
                 <i class="fas fa-users"></i>
             </div>
         </div>
-        <div class="card-value">324</div>
-        <div class="card-title">Currently assigned assets</div>
+        <div class="custom-card-value">324</div>
+        <div class="custom-card-title">Currently assigned assets</div>
     </div>
 
     <!-- Warranty Expiring -->
-    <div class="card">
-        <div class="card-header">
+    <div class="custom-card">
+        <div class="custom-card-header">
             <h3>Inquiries</h3>
-            <div class="card-icon bg-secondary">
+            <div class="custom-card-icon bg-secondary">
                 <i class="fas fa-calendar-times"></i>
             </div>
         </div>
-        <div class="card-value">28</div>
-        <div class="card-title">Requests for equipment</div>
+        <div class="custom-card-value">28</div>
+        <div class="custom-card-title">Requests for equipment</div>
     </div>
 </div>
 

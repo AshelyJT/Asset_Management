@@ -41,3 +41,11 @@ strong{
     margin-bottom: 5px;
     border-radius: 4px;
 }
+
+.max-width{
+    width: 100%;
+}
+
+.unread {
+    background-color: #dfe1ff;
+}

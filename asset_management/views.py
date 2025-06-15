@@ -73,20 +73,6 @@ class ProtectedView(LoginRequiredMixin, View):
 
 
 @login_required
-def show_notifications(request):
-    # Fetch notifications from the database or any other source
-    notifications = [
-        {
-            "message": "Asset transfer request approved.",
-            "timestamp": "2023-10-01 10:00",
-        },
-        {"message": "New asset added to inventory.", "timestamp": "2023-10-02 12:00"},
-        {"message": "Asset maintenance scheduled.", "timestamp": "2023-10-03 14:00"},
-    ]
-    return render(request, "notifications.html", {"notifications": notifications})
-
-
-@login_required
 def individual_assets_view(request):
     assets = Asset.objects.all()
     context = {
@@ -114,8 +100,8 @@ def asset_detail(request, asset_tag):
             recipient=request.user,
             sender=request.user,
             notification_type="ASSET_CHECKOUT",
-            title=f"Asset Transfer for {selected_asset.category} ({selected_asset.model})",
-            message=f"This asset has been sent to {to_department.name} for this reason: {reason}",
+            title=f"{selected_asset.location} - Asset Transfer for {selected_asset.name} {selected_asset.category} ({selected_asset.asset_tag})",
+            message=f"This asset {selected_asset.name} {selected_asset.model} with Serial number {selected_asset.serial_number} has been sent to {to_department.name} - {to_department.branch_name} for this reason: {reason}",
             related_object=asset_transfer,
         )
         messages.success(request, "Asset transfer request submitted successfully.")
