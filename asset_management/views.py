@@ -147,6 +147,13 @@ def inquire_asset(request):
             messages.success(
                 request, "Your asset inquiry has been submitted successfully!"
             )
+            create_notification(
+                recipient=request.user,
+                sender=request.user,
+                notification_type="ASSET_INQUIRY",
+                title="Asset Inquiry Submitted",
+                message=f"Requesting for {inquiry.asset_type} for this reason: {inquiry.description}",
+            )
             return redirect("inquire_asset")
     else:
         form = AssetInquiryForm(user=request.user)

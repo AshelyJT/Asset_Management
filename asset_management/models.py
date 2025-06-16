@@ -143,7 +143,7 @@ class AssetInquiry(models.Model):
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
-        ('ASSET_CREATED', 'New Asset Created'),
+        ('ASSET_INQUIRY', 'Asset Inquiry'),
         ('ASSET_UPDATED', 'Asset Updated'),
         ('ASSET_DELETED', 'Asset Deleted'),
         ('MAINTENANCE_DUE', 'Maintenance Due'),

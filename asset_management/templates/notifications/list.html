@@ -55,7 +55,7 @@
                                     <div class="d-flex">
                                         <div class="me-3">
                                             <span
-                                                class="badge bg-gradient {% if notification.notification_type == 'ASSET_CREATED' %}bg-info{% elif notification.notification_type == 'ASSET_UPDATED' %}bg-primary{% elif notification.notification_type == 'MAINTENANCE_DUE' %}bg-warning{% elif notification.notification_type == 'SYSTEM_ALERT' %}bg-danger{% elif notification.notification_type == 'ASSET_CHECKOUT' %}bg-success{% else %}bg-secondary{% endif %}">
+                                                class="badge bg-gradient bg-success">
                                                 {{ notification.get_notification_type_display }}
                                             </span>
                                         </div>
