@@ -9,6 +9,8 @@ class AssetAdmin(admin.ModelAdmin):
     date_hierarchy = 'purchase_date'
 
 # Register all models
+admin.site.register(Profile)
+admin.site.register(Branch)
 admin.site.register(Department)
 admin.site.register(Vendor)
 admin.site.register(AssetCategory)
