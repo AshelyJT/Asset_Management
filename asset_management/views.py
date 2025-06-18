@@ -54,12 +54,14 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     total_assets = Asset.objects.count()
+    incoming_equipment_count = IncomingEquipment.objects.filter(status='PENDING').count(),
     context = {
         "total_assets": total_assets,
         "total_bulk_assets": BulkAsset.objects.aggregate(
             total_quantity=Sum("quantity")
         )["total_quantity"]
         or 0,
+        "incoming_equipment_count": incoming_equipment_count[0],
     }
     return render(request, "dashboard.html", context)
 
@@ -96,6 +98,14 @@ def asset_detail(request, asset_tag):
             reason=reason,
         )
         asset_transfer.save()
+        
+        create_incoming_equipment(
+            asset=selected_asset,
+            received_by=request.user,
+            notes=f"Asset transfer from {selected_asset.location} to {to_department.name} for reason: {reason}",
+            status="PENDING"
+        )
+        
         create_notification(
             recipient=request.user,
             sender=request.user,
@@ -113,6 +123,10 @@ def asset_detail(request, asset_tag):
     }
     return render(request, "asset_detail.html", context)
 
+
+def update_asset_location(asset, new_location):
+    asset.location = new_location
+    asset.save()
 
 @login_required
 def reports(request):
@@ -314,6 +328,7 @@ def notifications_list(request):
     }
     return render(request, "notifications/list.html", context)
 
+
 def create_notification(
     sender, recipient, notification_type, title, message, related_object=None
 ):
@@ -324,12 +339,15 @@ def create_notification(
         title=title,
         message=message,
         related_object_id=related_object.id if related_object else None,
-        related_content_type=ContentType.objects.get_for_model(related_object)
-        if related_object
-        else None,
+        related_content_type=(
+            ContentType.objects.get_for_model(related_object)
+            if related_object
+            else None
+        ),
     )
     notification.save()
     return notification
+
 
 @login_required
 def mark_notification_as_read(request, pk):
@@ -361,12 +379,65 @@ def notification_count(request):
 
 
 @login_required
-def incoming_equipment(request):
-    incoming_equipment = Notification.objects.filter(
-        notification_type="ASSET_CHECKOUT",
-    )
+def incoming_equipment_list(request):
+    equipment_list = IncomingEquipment.objects.filter(status='PENDING')
+    form = ReceiveEquipmentForm(request.GET or None)
+    
+    if form.is_valid():
+        date_from = form.cleaned_data.get('date_from')
+        date_to = form.cleaned_data.get('date_to')
+        
+        if date_from:
+            equipment_list = equipment_list.filter(expected_date__gte=date_from)
+        if date_to:
+            equipment_list = equipment_list.filter(expected_date__lte=date_to)
+    
+    # Order by expected date (soonest first)
+    """ equipment_list = equipment_list.order_by('expected_date') """
+    
     context = {
-        "incoming_equipment": incoming_equipment,
-        "total_incoming": incoming_equipment.count(),
+        'equipment_list': equipment_list,
+        'form': form,
     }
-    return render(request, "incoming_equipment.html", context)
+    return render(request, 'equipment/incoming_list.html', context)
+
+@login_required
+def incoming_equipment_detail(request, pk):
+    equipment = get_object_or_404(
+        IncomingEquipment.objects.select_related('received_by', 'asset'),
+        pk=pk
+    )
+    
+    if request.method == 'POST' and 'receive_equipment' in request.POST:
+        form = ReceiveEquipmentForm(request.POST, instance=equipment)
+        if form.is_valid():
+            equipment = form.save(commit=False)
+            equipment.received_by = request.user
+            equipment.status = 'RECEIVED'
+            equipment.save()
+            update_asset_location(
+                equipment.asset, equipment.received_by.location
+            )
+            messages.success(request, 'Equipment received successfully!')
+            return redirect('incoming_equipment_list')
+    else:
+        form = ReceiveEquipmentForm(instance=equipment)
+    
+    context = {
+        'equipment': equipment,
+        'form': form,
+    }
+    return render(request, 'equipment/incoming_detail.html', context)
+
+
+def create_incoming_equipment(
+    asset=None, received_by=None, notes='', status='PENDING'
+):
+    incoming_equipment = IncomingEquipment(
+        asset=asset,
+        received_by=received_by,
+        notes=notes,
+        status=status
+    )
+    incoming_equipment.save()
+    return incoming_equipment

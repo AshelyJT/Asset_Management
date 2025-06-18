@@ -186,3 +186,35 @@ class Notification(models.Model):
     @property
     def is_recent(self):
         return (timezone.now() - self.created_at).days < 1
+    
+    
+    from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+class IncomingEquipment(models.Model):
+    RECEIVING_STATUS = [
+        ('PENDING', 'Pending'),
+        ('RECEIVED', 'Received'),
+        ('RETURNED', 'Returned to Sender'),
+    ]
+
+    asset = models.ForeignKey('Asset', on_delete=models.SET_NULL, null=True, blank=True)
+    received_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='received_equipment')
+    received_date = models.DateField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=RECEIVING_STATUS, default='PENDING')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-received_date']
+        verbose_name = 'Incoming Equipment'
+        verbose_name_plural = 'Incoming Equipment'
+
+    def __str__(self):
+        return f"Incoming #{self.id}"
+    
+    def mark_as_received(self):
+        self.status = 'RECEIVED'
+        self.save()

@@ -1,5 +1,7 @@
+from django.core.exceptions import ValidationError
 from django import forms
 from .models import *
+from django.utils import timezone
 
 
 class TransferAssetForm(forms.Form):
@@ -145,3 +147,65 @@ class NotificationFilterForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
     )
+""" 
+class IncomingEquipmentForm(forms.ModelForm):
+    class Meta:
+        model = IncomingEquipment
+        fields = ["notes"]
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({"class": "form-control"})
+
+
+class ReceiveEquipmentForm(forms.ModelForm):
+    class Meta:
+        model = IncomingEquipment
+        fields = ["received_date", "notes"]
+        widgets = {
+            "received_date": forms.DateInput(attrs={"type": "date"}),
+            "notes": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({"class": "form-control"})
+
+
+class IncomingEquipmentFilterForm(forms.Form):
+    status = forms.ChoiceField(
+        choices=[("", "All Statuses")] + IncomingEquipment.RECEIVING_STATUS,
+        required=False,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+    date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+    )
+
+    date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+    )
+ """
+
+class ReceiveEquipmentForm(forms.ModelForm):
+    class Meta:
+        model = IncomingEquipment
+        fields = ['received_date', 'notes']
+        widgets = {
+            'received_date': forms.DateInput(attrs={'type': 'date', 'max': timezone.now().date()}),
+            'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter any notes about the condition or contents'}),
+        }
+
+    def clean_received_date(self):
+        received_date = self.cleaned_data.get('received_date')
+        if received_date and received_date > timezone.now().date():
+            raise ValidationError("Received date cannot be in the future")
+        return received_date

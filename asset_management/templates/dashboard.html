@@ -34,7 +34,7 @@
     </a>
 
     <!-- Incoming Equipment -->
-     <a href="{% url 'incoming_equipment' %}" class="custom-card-link">
+     <a href="{% url 'incoming_equipment_list' %}" class="custom-card-link">
         <div class="custom-card">
         <div class="custom-card-header">
             <h3>Incoming Equipment</h3>
@@ -42,8 +42,9 @@
                 <i class="fas fa-truck"></i>
             </div>
         </div>
-        <div class="custom-card-value">15</div>
+        <div class="custom-card-value">{{ incoming_equipment_count }}</div>
         <div class="custom-card-title">Equipment awaiting processing</div>
+        <br>
      </div>
      </a>
     

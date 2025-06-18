@@ -14,6 +14,7 @@ admin.site.register(Vendor)
 admin.site.register(AssetCategory)
 admin.site.register(AssetTransfer)
 admin.site.register(BulkAsset)
+admin.site.register(IncomingEquipment)
 
 @admin.register(AssetInquiry)
 class AssetInquiryAdmin(admin.ModelAdmin):

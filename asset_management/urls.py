@@ -19,5 +19,6 @@ urlpatterns = [
     path('reports/', views.reports, name='reports'),
     path('bulk_assets/', views.bulk_assets, name='bulk_assets'),
     path('reports/assets/', views.asset_reports, name='asset_reports'),
-    path('incoming_equipment/', views.incoming_equipment, name='incoming_equipment'),
+    path('incoming/', views.incoming_equipment_list, name='incoming_equipment_list'),
+    path('incoming/<int:pk>/', views.incoming_equipment_detail, name='incoming_equipment_detail'),
 ]

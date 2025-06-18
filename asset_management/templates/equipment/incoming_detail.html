@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="row">
+                        <div class="col-6">
+                            <h6>Shipment Details - PO #{{ equipment.po_number }}</h6>
+                            <p class="text-sm mb-0">
+                                <span class="badge bg-gradient-secondary">Pending Receipt</span>
+                            </p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <a href="{% url 'incoming_equipment_list' %}" class="btn btn-sm bg-gradient-secondary">
+                                Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h6 class="mb-3">Shipment Information</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>PO Number:</strong> {{ equipment.po_number }}</p>
+                                            <p><strong>Vendor:</strong> {{ equipment.vendor }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Expected Date:</strong> {{ equipment.expected_date|date:"M d, Y"
+                                                }}</p>
+                                            <p><strong>Created:</strong> {{ equipment.created_at|date:"M d, Y" }}</p>
+                                        </div>
+                                    </div>
+
+                                    {% if equipment.notes %}
+                                    <h6 class="mt-4 mb-3">Notes</h6>
+                                    <div class="border rounded p-3">
+                                        {{ equipment.notes|linebreaks }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="mb-3">Receive Shipment</h6>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            {{ form.received_date.label_tag }}
+                                            {{ form.received_date }}
+                                        </div>
+                                        <div class="form-group mt-3">
+                                            {{ form.notes.label_tag }}
+                                            {{ form.notes }}
+                                        </div>
+                                        <button type="submit" name="receive_equipment"
+                                            class="btn btn-lg bg-gradient-primary w-100 mt-4">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            Confirm Receipt
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        // Initialize date picker
+        $('input[type="date"]').attr('max', new Date().toISOString().split('T')[0]);
+    });
+</script>
+{% endblock %}
