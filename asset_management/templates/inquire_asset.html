@@ -12,25 +12,34 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        
+
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
                         {% endif %}
-                        
+
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            <li class="{{ message.tags }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+
                         <div class="mb-3">
                             <label for="{{ form.asset_type.id_for_label }}" class="form-label">
                                 Equipment Type
                             </label>
                             {{ form.asset_type }}
                             {% if form.asset_type.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.asset_type.errors }}
-                                </div>
+                            <div class="invalid-feedback d-block">
+                                {{ form.asset_type.errors }}
+                            </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.description.id_for_label }}" class="form-label">
                                 Reason for Request
@@ -40,12 +49,12 @@
                                 Please provide a detailed description of why this equipment is needed.
                             </small>
                             {% if form.description.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.description.errors }}
-                                </div>
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors }}
+                            </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.quantity.id_for_label }}" class="form-label">
@@ -53,25 +62,25 @@
                                 </label>
                                 {{ form.quantity }}
                                 {% if form.quantity.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.quantity.errors }}
-                                    </div>
+                                <div class="invalid-feedback d-block">
+                                    {{ form.quantity.errors }}
+                                </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.priority.id_for_label }}" class="form-label">
                                     Priority
                                 </label>
                                 {{ form.priority }}
                                 {% if form.priority.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.priority.errors }}
-                                    </div>
+                                <div class="invalid-feedback d-block">
+                                    {{ form.priority.errors }}
+                                </div>
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 Submit Request
@@ -86,4 +95,20 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var messageBox = document.querySelector(".messages");
+
+        if (messageBox) {
+            setTimeout(function () {
+                messageBox.classList.add("hidden"); // Apply fade-out effect
+            }, 3000);
+            setTimeout(function () {
+                messageBox.remove(); // Remove the message box after fade-out
+            }, 4000);
+        }
+    });
+</script>
+
 {% endblock %}

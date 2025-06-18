@@ -358,3 +358,15 @@ def notification_count(request):
         ).count()
         return JsonResponse({"count": count})
     return JsonResponse({"count": 0})
+
+
+@login_required
+def incoming_equipment(request):
+    incoming_equipment = Notification.objects.filter(
+        notification_type="ASSET_CHECKOUT",
+    )
+    context = {
+        "incoming_equipment": incoming_equipment,
+        "total_incoming": incoming_equipment.count(),
+    }
+    return render(request, "incoming_equipment.html", context)

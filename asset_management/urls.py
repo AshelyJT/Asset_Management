@@ -19,4 +19,5 @@ urlpatterns = [
     path('reports/', views.reports, name='reports'),
     path('bulk_assets/', views.bulk_assets, name='bulk_assets'),
     path('reports/assets/', views.asset_reports, name='asset_reports'),
+    path('incoming_equipment/', views.incoming_equipment, name='incoming_equipment'),
 ]

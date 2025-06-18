@@ -49,3 +49,7 @@ strong{
 .unread {
     background-color: #dfe1ff;
 }
+
+.min-width-121 {
+    min-width: 121px;
+}

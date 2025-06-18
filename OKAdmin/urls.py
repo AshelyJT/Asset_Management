@@ -33,8 +33,9 @@ urlpatterns = [
     path('asset_management/reports/', views.reports, name='reports'),
     path('asset_management/bulk_assets/', views.bulk_assets, name='bulk_assets'),
     path('asset_management/reports/assets/', views.asset_reports, name='asset_reports'),
-    path('notifications/', views.notifications_list, name='notifications_list'),
-    path('notifications/<int:pk>/mark-read/', views.mark_notification_as_read, name='mark_notification_read'),
-    path('notifications/mark-all-read/', views.mark_all_as_read, name='mark_all_notifications_read'),
-    path('notifications/count/', views.notification_count, name='notification_count'),
+    path('asset_management/notifications/', views.notifications_list, name='notifications_list'),
+    path('asset_management/notifications/<int:pk>/mark-read/', views.mark_notification_as_read, name='mark_notification_read'),
+    path('asset_management/notifications/mark-all-read/', views.mark_all_as_read, name='mark_all_notifications_read'),
+    path('asset_management/notifications/count/', views.notification_count, name='notification_count'),
+    path('asset_management/incoming_equipment/', views.incoming_equipment, name='incoming_equipment'),
 ]
