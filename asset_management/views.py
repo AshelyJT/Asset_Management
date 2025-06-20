@@ -53,15 +53,18 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    total_assets = Asset.objects.count()
-    incoming_equipment_count = IncomingEquipment.objects.filter(status='PENDING').count(),
+    total_assets = Asset.objects.filter(location__branch_name=request.user.profile.location.branch_name).count()
+    incoming_equipment_count = AssetTransfer.objects.filter(
+        to_department=request.user.profile.location,
+        transfer_status='PENDING'
+    ).count()
     context = {
         "total_assets": total_assets,
         "total_bulk_assets": BulkAsset.objects.aggregate(
             total_quantity=Sum("quantity")
         )["total_quantity"]
         or 0,
-        "incoming_equipment_count": incoming_equipment_count[0],
+        "incoming_equipment_count": incoming_equipment_count,
     }
     return render(request, "dashboard.html", context)
 
@@ -76,12 +79,14 @@ class ProtectedView(LoginRequiredMixin, View):
 
 @login_required
 def individual_assets_view(request):
-    assets = Asset.objects.all()
+    assets = Asset.objects.filter(
+        location__branch_name=request.user.profile.location.branch_name
+    )
     context = {
         "assets": assets,
         "asset_categories": AssetCategory.objects.all(),
     }
-    return render(request, "individual_assets.html", context)
+    return render(request, "assets/individual_assets.html", context)
 
 
 @login_required
@@ -93,7 +98,7 @@ def asset_detail(request, asset_tag):
         reason = form.cleaned_data["reason"]
         asset_transfer = AssetTransfer.objects.create(
             asset=selected_asset,
-            from_department=selected_asset.location,
+            from_department=Department.objects.get(name=selected_asset.location.name),
             to_department=to_department,
             reason=reason,
         )
@@ -101,7 +106,7 @@ def asset_detail(request, asset_tag):
         
         create_incoming_equipment(
             asset=selected_asset,
-            received_by=request.user,
+            from_department=selected_asset.location,
             notes=f"Asset transfer from {selected_asset.location} to {to_department.name} for reason: {reason}",
             status="PENDING"
         )
@@ -121,7 +126,7 @@ def asset_detail(request, asset_tag):
         "selected_asset": selected_asset,
         "form": form,
     }
-    return render(request, "asset_detail.html", context)
+    return render(request, "assets/asset_detail.html", context)
 
 
 def update_asset_location(asset, new_location):
@@ -147,7 +152,7 @@ def bulk_assets(request):
         )["total_quantity"]
         or 0,
     }
-    return render(request, "bulk_assets.html", context)
+    return render(request, "assets/bulk_assets.html", context)
 
 
 @login_required
@@ -168,11 +173,11 @@ def inquire_asset(request):
                 title="Asset Inquiry Submitted",
                 message=f"Requesting for {inquiry.asset_type} for this reason: {inquiry.description}",
             )
-            return redirect("inquire_asset")
+            return redirect("assets/inquire_asset")
     else:
         form = AssetInquiryForm(user=request.user)
 
-    return render(request, "inquire_asset.html", {"form": form})
+    return render(request, "assets/inquire_asset.html", {"form": form})
 
 
 @login_required
@@ -380,7 +385,11 @@ def notification_count(request):
 
 @login_required
 def incoming_equipment_list(request):
-    equipment_list = IncomingEquipment.objects.filter(status='PENDING')
+    user = User.objects.get(username=request.user.username)
+    equipment_list = AssetTransfer.objects.filter(
+        to_department=user.profile.location,
+        transfer_status='PENDING'
+    ).select_related('asset', 'from_department', 'to_department')
     form = ReceiveEquipmentForm(request.GET or None)
     
     if form.is_valid():
@@ -403,11 +412,7 @@ def incoming_equipment_list(request):
 
 @login_required
 def incoming_equipment_detail(request, pk):
-    equipment = get_object_or_404(
-        IncomingEquipment.objects.select_related('received_by', 'asset'),
-        pk=pk
-    )
-    
+    equipment = get_object_or_404(AssetTransfer, pk=pk, to_department=request.user.profile.location)
     if request.method == 'POST' and 'receive_equipment' in request.POST:
         form = ReceiveEquipmentForm(request.POST, instance=equipment)
         if form.is_valid():
@@ -431,13 +436,15 @@ def incoming_equipment_detail(request, pk):
 
 
 def create_incoming_equipment(
-    asset=None, received_by=None, notes='', status='PENDING'
+    asset=None, from_department=None, to_department=None, notes='', status='PENDING'
 ):
     incoming_equipment = IncomingEquipment(
         asset=asset,
-        received_by=received_by,
+        from_department=from_department,
+        to_department=to_department,
         notes=notes,
         status=status
+        
     )
     incoming_equipment.save()
     return incoming_equipment

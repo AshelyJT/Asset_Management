@@ -15,7 +15,7 @@ class Branch(models.Model):
     code = models.CharField(max_length=5, unique=True)
 
     def __str__(self):
-        return f"BR{self.code} - ({self.name})"
+        return f"BR{self.code} - {self.name}"
     
     class Meta:
         verbose_name_plural = "Branches"
@@ -79,7 +79,7 @@ class Asset(models.Model):
 class AssetTransfer(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     from_department = models.ForeignKey(
-        Department, on_delete=models.PROTECT, related_name="transfers_out"
+        Department, on_delete=models.PROTECT, related_name="transfers_out",default=None, null=True, blank=True
     )
     to_department = models.ForeignKey(
         Department, on_delete=models.PROTECT, related_name="transfers_in"
@@ -214,7 +214,9 @@ class IncomingEquipment(models.Model):
     ]
 
     asset = models.ForeignKey('Asset', on_delete=models.SET_NULL, null=True, blank=True)
-    received_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='received_equipment')
+    to_department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='incoming_equipment', null=True, blank=True)
+    from_department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='outgoing_equipment', null=True, blank=True)
+    received_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='received_equipment', null=True, blank=True)
     received_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=RECEIVING_STATUS, default='PENDING')
     notes = models.TextField(blank=True)

@@ -31,22 +31,21 @@
                     <th>Model</th>
                     <th>Category</th>
                     <th>Status</th>
-                    <th>Current Branch</th>
-                    <th>Last Updated</th>
                 </tr>
             </thead>
             <tbody id="assetTableBody">
                 {% for asset in assets %}
                 <tr>
                     <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.asset_tag }}</a></td>
-                    <td>{{ asset.name }}</td>
-                    <td>{{ asset.model }}</td>
-                    <td class="asset-category">{{ asset.category }}</td>
+                    <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.name }}</a></td>
+                    <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.model }}</a></td>
+                    <td class="asset-category">
+                        <a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.category }}</a>
+                    </td>
                     <td
                         class="{% if asset.status == 'In Use' %}status-active{% elif asset.status == 'Maintenance' %}status-warning{% else %}status-idle{% endif %}">
-                        {{ asset.status }}</td>
-                    <td>{{ asset.location }}</td>
-                    <td>{{ asset.updated_at|date:"d M Y, H:i" }}</td>
+                        <a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.status }}</a>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
