@@ -402,7 +402,7 @@ def incoming_equipment_list(request):
             equipment_list = equipment_list.filter(expected_date__lte=date_to)
     
     # Order by expected date (soonest first)
-    """ equipment_list = equipment_list.order_by('expected_date') """
+    equipment_list = equipment_list.order_by('-id')
     
     context = {
         'equipment_list': equipment_list,

@@ -7,41 +7,56 @@
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header pb-0">
-                    <div class="row">
-                        <div class="col-6">
-                            <h6>Shipment Details - PO #{{ equipment.po_number }}</h6>
-                            <p class="text-sm mb-0">
-                                <span class="badge bg-gradient-secondary">Pending Receipt</span>
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h6 class="mb-1">Transfer Details - Invoice Number #{{ equipment.id }}</h6>
+                            <p class="small mb-0">
+                                <span class="badge bg-secondary">Pending Invoice</span>
                             </p>
                         </div>
-                        <div class="col-6 text-end">
-                            <a href="{% url 'incoming_equipment_list' %}" class="btn btn-sm bg-gradient-secondary">
-                                Back to List
+                        <div class="col-md-6 text-end">
+                            <a href="{% url 'incoming_equipment_list' %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to List
                             </a>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="card mb-4">
+                            <div class="card h-100">
                                 <div class="card-body">
-                                    <h6 class="mb-3">Shipment Information</h6>
+                                    <h6 class="mb-3">Transfer Information</h6>
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <p><strong>PO Number:</strong> {{ equipment.po_number }}</p>
-                                            <p><strong>Vendor:</strong> {{ equipment.vendor }}</p>
+                                        <div class="col-sm-6">
+                                            <p class="mb-2">
+                                                <strong class="w-100">
+                                                    Invoice Number:
+                                                </strong>
+                                                {{ equipment.id }}
+                                            </p>
+                                            <p class="mb-2">
+                                                <strong class="w-100">
+                                                    Asset Tag:
+                                                </strong> 
+                                                {{ equipment.asset.asset_tag }}</p>
+                                            <p class="mb-2">
+                                                <strong class="w-100">
+                                                    Reason for Transfer:
+                                                </strong>
+                                                {{ equipment.reason }}
+                                            </p>
                                         </div>
-                                        <div class="col-md-6">
-                                            <p><strong>Expected Date:</strong> {{ equipment.expected_date|date:"M d, Y"
-                                                }}</p>
-                                            <p><strong>Created:</strong> {{ equipment.created_at|date:"M d, Y" }}</p>
+                                        <div class="col-sm-6">
+                                            <p class="mb-2"><strong>Sent:</strong>
+                                                {{ equipment.transfer_date|date:"d-m-Y" }}</p>
+                                            </p>
                                         </div>
                                     </div>
 
                                     {% if equipment.notes %}
                                     <h6 class="mt-4 mb-3">Notes</h6>
-                                    <div class="border rounded p-3">
+                                    <div class="border rounded p-3 bg-light">
                                         {{ equipment.notes|linebreaks }}
                                     </div>
                                     {% endif %}
@@ -50,29 +65,27 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="card">
+                            <div class="card h-100">
                                 <div class="card-body">
-                                    <h6 class="mb-3">Receive Shipment</h6>
-                                    <form method="post">
+                                    <h6 class="mb-3">Receive Transfer</h6>
+                                    <form method="post" novalidate>
                                         {% csrf_token %}
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             {{ form.received_date.label_tag }}
                                             {{ form.received_date }}
                                         </div>
-                                        <div class="form-group mt-3">
+                                        <div class="mb-3">
                                             {{ form.notes.label_tag }}
                                             {{ form.notes }}
                                         </div>
-                                        <button type="submit" name="receive_equipment"
-                                            class="btn btn-lg bg-gradient-primary w-100 mt-4">
-                                            <i class="fas fa-check-circle me-2"></i>
-                                            Confirm Receipt
+                                        <button type="submit" name="receive_equipment" class="btn btn-primary w-100">
+                                            <i class="fas fa-check-circle me-2"></i> Confirm Receipt
                                         </button>
                                     </form>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> <!-- end row -->
                 </div>
             </div>
         </div>
@@ -82,9 +95,10 @@
 
 {% block scripts %}
 <script>
-    $(document).ready(function () {
-        // Initialize date picker
-        $('input[type="date"]').attr('max', new Date().toISOString().split('T')[0]);
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        const today = new Date().toISOString().split('T')[0];
+        dateInputs.forEach(input => input.setAttribute('max', today));
     });
 </script>
 {% endblock %}

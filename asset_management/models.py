@@ -87,8 +87,7 @@ class AssetTransfer(models.Model):
     transfer_date = models.DateField(auto_now_add=True)
     reason = models.TextField()
     transfer_status = models.CharField(max_length=20, default="PENDING")
-    admin_status = models.CharField(max_length=20, default="unseen")
-    user_status = models.CharField(max_length=20, default="unseen")
+    notes = models.TextField(blank=True)
 
     def __str__(self):
         return f"Transfer of {self.asset.name} to {self.to_department}"

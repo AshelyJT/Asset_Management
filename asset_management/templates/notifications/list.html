@@ -54,8 +54,7 @@
                                 <div class="d-flex align-items-center" style="width: 95%;">
                                     <div class="d-flex">
                                         <div class="me-3 min-width-121">
-                                            <span
-                                                class="badge bg-gradient bg-success w-100 text-center">
+                                            <span class="badge bg-gradient bg-success w-100 text-center">
                                                 {{ notification.get_notification_type_display }}
                                             </span>
                                         </div>
@@ -133,7 +132,8 @@
         $('.mark-as-read').click(function () {
             var id = $(this).data('notification-id');
             var button = $(this);
-            $.post('/notifications/' + id + '/mark-read/', {
+            var url = "{% url 'mark_notification_read' 0 %}".replace('0', id);
+            $.post(url, {
                 csrfmiddlewaretoken: '{{ csrf_token }}'
             }, function (response) {
                 if (response.success) {
@@ -144,8 +144,13 @@
             });
         });
 
+
         $('#mark-all-read').click(function () {
-            $.post('/notifications/mark-all-read/', {
+            const mark_all_read_Url = "{% url 'mark_all_notifications_read' %}";
+            if (!confirm('Are you sure you want to mark all notifications as read?')) {
+                return;
+            }
+            $.post(mark_all_read_Url, {
                 csrfmiddlewaretoken: '{{ csrf_token }}'
             }, function (response) {
                 if (response.success) {
@@ -157,8 +162,11 @@
         });
 
         function updateUnreadCount() {
-            $.get('/notifications/count/', function (data) {
+            const countUrl = "{% url 'notification_count' %}";
+            $.get(countUrl, function (data) {
                 $('.badge.bg-primary').text(data.count);
+            }).fail(function () {
+                console.error('Failed to fetch unread count');
             });
         }
 
