@@ -2,12 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    location = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
+    user_department = models.ForeignKey(
+        "Department", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    user_branch = models.ForeignKey(
+        "Branch", on_delete=models.SET_NULL, null=True,blank=True
+    )
 
     def __str__(self):
-        return f"{self.user.username} - {self.location}"
+        return f"{self.user.username} - {self.user_branch}"
 
 
 class Branch(models.Model):
@@ -16,13 +22,16 @@ class Branch(models.Model):
 
     def __str__(self):
         return f"BR{self.code} - {self.name}"
-    
+
     class Meta:
         verbose_name_plural = "Branches"
 
+
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    branch_name = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='departments')
+    branch_name = models.ForeignKey(
+        Branch, on_delete=models.CASCADE, related_name="departments"
+    )
 
     def __str__(self):
         return f"{self.name} ({self.branch_name.name})"
@@ -43,7 +52,7 @@ class AssetCategory(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name_plural = "Asset Categories"
 
@@ -77,16 +86,39 @@ class Asset(models.Model):
 
 
 class AssetTransfer(models.Model):
+    transfer_options = [
+        ("PENDING", "PENDING"),
+        ("RECEIVED", "RECEIVED"),
+    ]
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     from_department = models.ForeignKey(
-        Department, on_delete=models.PROTECT, related_name="transfers_out",default=None, null=True, blank=True
+        Department,
+        on_delete=models.PROTECT,
+        related_name="transfers_out",
+        default=None,
+        null=True,
+        blank=True,
     )
     to_department = models.ForeignKey(
         Department, on_delete=models.PROTECT, related_name="transfers_in"
     )
     transfer_date = models.DateField(auto_now_add=True)
     reason = models.TextField()
-    transfer_status = models.CharField(max_length=20, default="PENDING")
+    transfer_status = models.CharField(choices=transfer_options, default="PENDING")
+    sent_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="transfers_sent",
+        null=True,
+        blank=True,
+    )
+    received_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="transfers_received",
+        null=True,
+        blank=True,
+    )
     notes = models.TextField(blank=True)
 
     def __str__(self):
@@ -158,39 +190,43 @@ class AssetInquiry(models.Model):
         ordering = ["-submitted_date"]
 
 
-
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
-        ('ASSET_INQUIRY', 'Asset Inquiry'),
-        ('ASSET_UPDATED', 'Asset Updated'),
-        ('ASSET_DELETED', 'Asset Deleted'),
-        ('MAINTENANCE_DUE', 'Maintenance Due'),
-        ('MAINTENANCE_COMPLETED', 'Maintenance Completed'),
-        ('ASSET_CHECKOUT', 'Asset Checked Out'),
-        ('ASSET_CHECKIN', 'Asset Checked In'),
-        ('SYSTEM_ALERT', 'System Alert'),
+        ("ASSET_INQUIRY", "Asset Inquiry"),
+        ("ASSET_UPDATED", "Asset Updated"),
+        ("ASSET_DELETED", "Asset Deleted"),
+        ("MAINTENANCE_DUE", "Maintenance Due"),
+        ("MAINTENANCE_COMPLETED", "Maintenance Completed"),
+        ("ASSET_CHECKOUT", "Asset Checked Out"),
+        ("ASSET_CHECKIN", "Asset Checked In"),
+        ("SYSTEM_ALERT", "System Alert"),
     ]
 
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')
+    recipient = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="notifications"
+    )
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="sent_notifications",
+    )
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
     title = models.CharField(max_length=200)
     message = models.TextField()
     related_object_id = models.PositiveIntegerField(null=True, blank=True)
     related_content_type = models.ForeignKey(
-        'contenttypes.ContentType',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        "contenttypes.ContentType", on_delete=models.SET_NULL, null=True, blank=True
     )
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     read_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'Notification'
-        verbose_name_plural = 'Notifications'
+        ordering = ["-created_at"]
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
 
     def __str__(self):
         return f"{self.get_notification_type_display()} - {self.title}"
@@ -205,31 +241,52 @@ class Notification(models.Model):
     def is_recent(self):
         return (timezone.now() - self.created_at).days < 1
 
+
 class IncomingEquipment(models.Model):
     RECEIVING_STATUS = [
-        ('PENDING', 'Pending'),
-        ('RECEIVED', 'Received'),
-        ('RETURNED', 'Returned to Sender'),
+        ("PENDING", "Pending"),
+        ("RECEIVED", "Received"),
+        ("RETURNED", "Returned to Sender"),
     ]
 
-    asset = models.ForeignKey('Asset', on_delete=models.SET_NULL, null=True, blank=True)
-    to_department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='incoming_equipment', null=True, blank=True)
-    from_department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='outgoing_equipment', null=True, blank=True)
-    received_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='received_equipment', null=True, blank=True)
+    asset = models.ForeignKey("Asset", on_delete=models.SET_NULL, null=True, blank=True)
+    to_department = models.ForeignKey(
+        Department,
+        on_delete=models.PROTECT,
+        related_name="incoming_equipment",
+        null=True,
+        blank=True,
+    )
+    from_department = models.ForeignKey(
+        Department,
+        on_delete=models.PROTECT,
+        related_name="outgoing_equipment",
+        null=True,
+        blank=True,
+    )
+    received_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="received_equipment",
+        null=True,
+        blank=True,
+    )
     received_date = models.DateField(default=timezone.now)
-    status = models.CharField(max_length=20, choices=RECEIVING_STATUS, default='PENDING')
+    status = models.CharField(
+        max_length=20, choices=RECEIVING_STATUS, default="PENDING"
+    )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-received_date']
-        verbose_name = 'Incoming Equipment'
-        verbose_name_plural = 'Incoming Equipment'
+        ordering = ["-received_date"]
+        verbose_name = "Incoming Equipment"
+        verbose_name_plural = "Incoming Equipment"
 
     def __str__(self):
         return f"Incoming #{self.id}"
-    
+
     def mark_as_received(self):
-        self.status = 'RECEIVED'
+        self.status = "RECEIVED"
         self.save()

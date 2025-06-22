@@ -53,7 +53,9 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    total_assets = Asset.objects.filter(location__branch_name=request.user.profile.location.branch_name).count()
+    user = User.objects.get(request.user)
+    user_branch = user.profile.user_branch.name
+    total_assets = Asset.objects.filter(user_branch).count()
     incoming_equipment_count = AssetTransfer.objects.filter(
         to_department=request.user.profile.location,
         transfer_status='PENDING'
@@ -79,8 +81,10 @@ class ProtectedView(LoginRequiredMixin, View):
 
 @login_required
 def individual_assets_view(request):
+    user = User.objects.get(request.user)
+    user_branch = user.profile.user_branch.name
     assets = Asset.objects.filter(
-        location__branch_name=request.user.profile.location.branch_name
+        user_branch
     )
     context = {
         "assets": assets,
@@ -101,6 +105,7 @@ def asset_detail(request, asset_tag):
             from_department=Department.objects.get(name=selected_asset.location.name),
             to_department=to_department,
             reason=reason,
+            sent_by=request.user,
         )
         asset_transfer.save()
         
@@ -412,19 +417,20 @@ def incoming_equipment_list(request):
 
 @login_required
 def incoming_equipment_detail(request, pk):
+    user = User.objects.get(username=request.user.username)
+    userDepartment = user.profile.location
     equipment = get_object_or_404(AssetTransfer, pk=pk, to_department=request.user.profile.location)
     if request.method == 'POST' and 'receive_equipment' in request.POST:
         form = ReceiveEquipmentForm(request.POST, instance=equipment)
         if form.is_valid():
             equipment = form.save(commit=False)
             equipment.received_by = request.user
-            equipment.status = 'RECEIVED'
+            equipment.transfer_status = "RECEIVED"
             equipment.save()
             update_asset_location(
-                equipment.asset, equipment.received_by.location
+                equipment.asset, userDepartment
             )
-            messages.success(request, 'Equipment received successfully!')
-            return redirect('incoming_equipment_list')
+            return redirect("incoming_equipment_list")
     else:
         form = ReceiveEquipmentForm(instance=equipment)
     
