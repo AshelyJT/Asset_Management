@@ -84,7 +84,7 @@
                 <th>Serial Number</th>
                 <th>Vendor</th>
                 <th>Status</th>
-                <th>Location</th>
+                <th>assigned_branch</th>
                 <th>Purchase Date</th>
                 <th>Notes</th>
             </tr>
@@ -99,7 +99,7 @@
                 <td>{{ asset.serial_number }}</td>
                 <td>{{ asset.vendor }}</td>
                 <td class="status-{{ asset.status|lower }}">{{ asset.get_status_display }}</td>
-                <td>{{ asset.location }}</td>
+                <td>{{ asset.assigned_branch }}</td>
                 <td>{{ asset.purchase_date|date:"M d, Y" }}</td>
                 <td>{{ asset.notes|truncatechars:50 }}</td>
             </tr>

@@ -3,8 +3,8 @@ from .models import *
 
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'model', 'category', 'location', 'status', 'asset_tag')
-    list_filter = ('category', 'status', 'location')
+    list_display = ('name', 'model', 'category', 'status', 'asset_tag')
+    list_filter = ('category', 'status')
     search_fields = ('asset_tag', 'serial_number', 'name')
     date_hierarchy = 'purchase_date'
 
@@ -14,9 +14,33 @@ admin.site.register(Branch)
 admin.site.register(Department)
 admin.site.register(Vendor)
 admin.site.register(AssetCategory)
-admin.site.register(AssetTransfer)
 admin.site.register(BulkAsset)
 admin.site.register(IncomingEquipment)
+
+
+@admin.register(AssetTransfer)
+class AssetTransferAdmin(admin.ModelAdmin):
+    list_display = ('asset', 'from_department', 'to_department', 'transfer_date', 'transfer_status', 'sent_by', 'received_by')
+    list_filter = ('transfer_status', 'from_department', 'to_department', 'transfer_date')
+    search_fields = ('asset__name', 'from_department__name', 'to_department__name', 'reason')
+    readonly_fields = ('transfer_date',)
+    fieldsets = (
+        (None, {
+            'fields': ('asset',)
+        }),
+        ('Transfer Origin', {
+            'fields': ('from_department', 'from_branch',)
+        }),
+        ('Transfer Destination', {
+            'fields': ('to_department', 'to_branch',)
+        }),
+        ('Transfer Details', {
+            'fields': ('transfer_date', 'reason',)
+        }),
+        ('Status Information', {
+            'fields': ('transfer_status', 'sent_by', 'received_by')
+        }),
+    )
 
 @admin.register(AssetInquiry)
 class AssetInquiryAdmin(admin.ModelAdmin):

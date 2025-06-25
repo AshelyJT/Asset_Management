@@ -9,7 +9,7 @@ class Profile(models.Model):
         "Department", on_delete=models.SET_NULL, null=True, blank=True
     )
     user_branch = models.ForeignKey(
-        "Branch", on_delete=models.SET_NULL, null=True,blank=True
+        "Branch", on_delete=models.SET_NULL, null=True, blank=True
     )
 
     def __str__(self):
@@ -17,24 +17,27 @@ class Profile(models.Model):
 
 
 class Branch(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    code = models.CharField(max_length=5, unique=True)
+    branch_name = models.CharField(max_length=100, unique=True)
+    branch_code = models.CharField(max_length=5, unique=True)
 
     def __str__(self):
-        return f"BR{self.code} - {self.name}"
+        if self.branch_name=="OK HeadOffice":
+            return f"{self.branch_name}"
+        else:
+            return f"BR{self.branch_code} - {self.branch_name}"
 
     class Meta:
         verbose_name_plural = "Branches"
 
 
 class Department(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    branch_name = models.ForeignKey(
-        Branch, on_delete=models.CASCADE, related_name="departments"
-    )
-
+    department_name = models.CharField(max_length=100, unique=True)
+    department_code = models.CharField(max_length=10, blank=True, null=True)
     def __str__(self):
-        return f"{self.name} ({self.branch_name.name})"
+        if self.department_code:
+            return f"{self.department_name} ({self.department_code})"
+        else:
+            return f"{self.department_name}"
 
 
 class Vendor(models.Model):
@@ -76,7 +79,12 @@ class Asset(models.Model):
     status = models.CharField(
         max_length=20, choices=ASSET_STATUS, default="OPERATIONAL"
     )
-    location = models.ForeignKey(Department, on_delete=models.PROTECT)
+    assigned_department = models.ForeignKey(
+        Department, on_delete=models.PROTECT, related_name="assets", null=True, blank=True
+    )
+    assigned_branch = models.ForeignKey(
+        Branch, on_delete=models.PROTECT, related_name="assets", null=True, blank=True
+    )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -99,8 +107,22 @@ class AssetTransfer(models.Model):
         null=True,
         blank=True,
     )
+    from_branch = models.ForeignKey(
+        Branch,
+        on_delete=models.PROTECT,
+        related_name="transfers_out",
+        null=True,
+        blank=True,
+    )
     to_department = models.ForeignKey(
         Department, on_delete=models.PROTECT, related_name="transfers_in"
+    )
+    to_branch = models.ForeignKey(
+        Branch,
+        on_delete=models.PROTECT,
+        related_name="transfers_in",
+        null=True,
+        blank=True,
     )
     transfer_date = models.DateField(auto_now_add=True)
     reason = models.TextField()
@@ -202,9 +224,6 @@ class Notification(models.Model):
         ("SYSTEM_ALERT", "System Alert"),
     ]
 
-    recipient = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="notifications"
-    )
     sender = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -212,6 +231,11 @@ class Notification(models.Model):
         blank=True,
         related_name="sent_notifications",
     )
+    
+    recipient = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="notifications"
+    )
+    
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
     title = models.CharField(max_length=200)
     message = models.TextField()

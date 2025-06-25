@@ -41,11 +41,11 @@
                     </select>
                 </div>
                 <div class="form-group mr-3 mb-2">
-                    <label for="location" class="mr-2">Location:</label>
-                    <select name="location" id="location" class="form-control">
+                    <label for="assigned_branch" class="mr-2">assigned_branch:</label>
+                    <select name="assigned_branch" id="assigned_branch" class="form-control">
                         <option value="">All</option>
-                        {% for location in locations %}
-                        <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"s" %}selected{% endif %}>{{ location.name }}</option>
+                        {% for assigned_branch in assigned_branches %}
+                        <option value="{{ assigned_branch.id }}" {% if request.GET.assigned_branch == assigned_branch.id|stringformat:"s" %}selected{% endif %}>{{ assigned_branch.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -76,7 +76,7 @@
                             <th>Name</th>
                             <th>Category</th>
                             <th>Assigned To</th>
-                            <th>Location</th>
+                            <th>assigned_branch</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -94,7 +94,7 @@
                                 </a>
                                 {% else %}Unassigned{% endif %}
                             </td>
-                            <td>{{ asset.location.name }}</td>
+                            <td>{{ asset.assigned_branch.name }}</td>
                             <td>
                                 <span class="badge 
                                     {% if asset.status == 'OPERATIONAL' %}badge-success

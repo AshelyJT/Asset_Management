@@ -39,8 +39,8 @@
                                         {{ form.category }}
                                     </div>
                                     <div class="col-md-3">
-                                        {{ form.location.label_tag }}
-                                        {{ form.location }}
+                                        {{ form.assigned_branch.label_tag }}
+                                        {{ form.assigned_branch }}
                                     </div>
                                     <div class="col-md-3">
                                         {{ form.vendor.label_tag }}
@@ -85,7 +85,7 @@
                                     <th>Model</th>
                                     <th>Serial Number</th>
                                     <th>Status</th>
-                                    <th>Location</th>
+                                    <th>assigned_branch</th>
                                     <th>Purchase Date</th>
                                 </tr>
                             </thead>
@@ -106,7 +106,7 @@
                                             {{ asset.get_status_display }}
                                         </span>
                                     </td>
-                                    <td>{{ asset.location }}</td>
+                                    <td>{{ asset.assigned_branch }}</td>
                                     <td>{{ asset.purchase_date|date:"M d, Y" }}</td>
                                 </tr>
                                 {% empty %}

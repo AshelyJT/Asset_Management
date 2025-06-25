@@ -53,11 +53,11 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    user = User.objects.get(request.user)
-    user_branch = user.profile.user_branch.name
-    total_assets = Asset.objects.filter(user_branch).count()
+    user = request.user
+    user_branch = user.profile.user_branch.branch_name
+    total_assets = Asset.objects.filter(assigned_branch__branch_name=user_branch).count()
     incoming_equipment_count = AssetTransfer.objects.filter(
-        to_department=request.user.profile.location,
+        to_branch=request.user.profile.user_branch,
         transfer_status='PENDING'
     ).count()
     context = {
@@ -81,10 +81,13 @@ class ProtectedView(LoginRequiredMixin, View):
 
 @login_required
 def individual_assets_view(request):
-    user = User.objects.get(request.user)
-    user_branch = user.profile.user_branch.name
+    user = request.user
+    if not hasattr(user, 'profile') or not user.profile.user_branch:
+        messages.error(request, "Your profile is not set up correctly.")
+        return redirect("dashboard")
+    user_branch = user.profile.user_branch
     assets = Asset.objects.filter(
-        user_branch
+        assigned_branch=user_branch
     )
     context = {
         "assets": assets,
@@ -99,11 +102,14 @@ def asset_detail(request, asset_tag):
     if request.method == "POST" and form.is_valid():
         selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
         to_department = form.cleaned_data["to_department"]
+        to_branch = form.cleaned_data["to_branch"]
         reason = form.cleaned_data["reason"]
         asset_transfer = AssetTransfer.objects.create(
             asset=selected_asset,
-            from_department=Department.objects.get(name=selected_asset.location.name),
+            from_department=Department.objects.get(department_name=selected_asset.assigned_department.department_name),
+            from_branch=Branch.objects.get(branch_name=selected_asset.assigned_branch.branch_name),
             to_department=to_department,
+            to_branch=to_branch,
             reason=reason,
             sent_by=request.user,
         )
@@ -111,8 +117,8 @@ def asset_detail(request, asset_tag):
         
         create_incoming_equipment(
             asset=selected_asset,
-            from_department=selected_asset.location,
-            notes=f"Asset transfer from {selected_asset.location} to {to_department.name} for reason: {reason}",
+            from_department=selected_asset.assigned_department,
+            notes=f"Asset transfer from {selected_asset.assigned_department} {selected_asset.assigned_branch} to {to_department.department_name} for reason: {reason}",
             status="PENDING"
         )
         
@@ -120,8 +126,8 @@ def asset_detail(request, asset_tag):
             recipient=request.user,
             sender=request.user,
             notification_type="ASSET_CHECKOUT",
-            title=f"{selected_asset.location} - Asset Transfer for {selected_asset.name} {selected_asset.category} ({selected_asset.asset_tag})",
-            message=f"This asset {selected_asset.name} {selected_asset.model} with Serial number {selected_asset.serial_number} has been sent to {to_department.name} - {to_department.branch_name} for this reason: {reason}",
+            title=f"{selected_asset.assigned_branch} - Asset Transfer for {selected_asset.name} {selected_asset.category} ({selected_asset.asset_tag})",
+            message=f"This asset {selected_asset.name} {selected_asset.model} with Serial number {selected_asset.serial_number} has been sent to {to_department.department_name} - {to_branch.branch_name} for this reason: {reason}",
             related_object=asset_transfer,
         )
         messages.success(request, "Asset transfer request submitted successfully.")
@@ -134,8 +140,9 @@ def asset_detail(request, asset_tag):
     return render(request, "assets/asset_detail.html", context)
 
 
-def update_asset_location(asset, new_location):
-    asset.location = new_location
+def update_asset_location(asset, new_department, new_branch):
+    asset.assigned_department = new_department
+    asset.assigned_branch = new_branch
     asset.save()
 
 @login_required
@@ -187,13 +194,13 @@ def inquire_asset(request):
 
 @login_required
 def asset_reports(request):
-    assets = Asset.objects.select_related("category", "vendor", "location").all()
+    assets = Asset.objects.select_related("category", "assigned_department", "assigned_branch",).all()
     form = AssetReportFilterForm(request.GET or None)
 
     if form.is_valid():
         status = form.cleaned_data.get("status")
         category = form.cleaned_data.get("category")
-        location = form.cleaned_data.get("location")
+        assigned_branch = form.cleaned_data.get("assigned_branch")
         vendor = form.cleaned_data.get("vendor")
         date_from = form.cleaned_data.get("date_from")
         date_to = form.cleaned_data.get("date_to")
@@ -203,8 +210,8 @@ def asset_reports(request):
             assets = assets.filter(status=status)
         if category:
             assets = assets.filter(category=category)
-        if location:
-            assets = assets.filter(location=location)
+        if assigned_branch:
+            assets = assets.filter(assigned_branch=assigned_branch)
         if vendor:
             assets = assets.filter(vendor=vendor)
         if date_from:
@@ -263,7 +270,7 @@ def export_to_excel(queryset):
                 asset.purchase_date.strftime("%Y-%m-%d"),
                 str(asset.vendor),
                 asset.get_status_display(),
-                str(asset.location),
+                str(asset.assigned_branch),
                 asset.notes,
             ]
         )
@@ -390,9 +397,10 @@ def notification_count(request):
 
 @login_required
 def incoming_equipment_list(request):
-    user = User.objects.get(username=request.user.username)
+    user=request.user
+    user_branch=user.profile.user_branch
     equipment_list = AssetTransfer.objects.filter(
-        to_department=user.profile.location,
+        to_branch=user_branch,
         transfer_status='PENDING'
     ).select_related('asset', 'from_department', 'to_department')
     form = ReceiveEquipmentForm(request.GET or None)
@@ -417,9 +425,10 @@ def incoming_equipment_list(request):
 
 @login_required
 def incoming_equipment_detail(request, pk):
-    user = User.objects.get(username=request.user.username)
-    userDepartment = user.profile.location
-    equipment = get_object_or_404(AssetTransfer, pk=pk, to_department=request.user.profile.location)
+    user = request.user
+    user_department = user.profile.user_department
+    user_branch = user.profile.user_branch
+    equipment = get_object_or_404(AssetTransfer, pk=pk, to_branch=user_branch)
     if request.method == 'POST' and 'receive_equipment' in request.POST:
         form = ReceiveEquipmentForm(request.POST, instance=equipment)
         if form.is_valid():
@@ -428,7 +437,9 @@ def incoming_equipment_detail(request, pk):
             equipment.transfer_status = "RECEIVED"
             equipment.save()
             update_asset_location(
-                equipment.asset, userDepartment
+                asset=equipment.asset, 
+                new_department=user_department, 
+                new_branch=user_branch
             )
             return redirect("incoming_equipment_list")
     else:

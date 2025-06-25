@@ -33,7 +33,10 @@
                 <strong>Status:</strong> {{ selected_asset.status }}
             </li>
             <li class="list-group-item">
-                <strong>Current Branch:</strong> {{ selected_asset.location }}
+                <strong>Current Department:</strong> {{ selected_asset.assigned_department }}
+            </li>
+            <li class="list-group-item">
+                <strong>Current Branch:</strong> {{ selected_asset.assigned_branch }}
             </li>
             <li class="list-group-item">
                 <strong>Last Updated: </strong>{{ selected_asset.updated_at|date:"d M Y, H:i" }}
@@ -70,6 +73,10 @@
                                 <div class="mb-3">
                                     <label for="{{form.to_department.label}}">{{form.to_department.label}}</label>
                                     {{ form.to_department }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{form.to_branch.label}}">{{form.to_branch.label}}</label>
+                                    {{ form.to_branch }}
                                 </div>
                                 <div class="mb-3">
                                     <label for="{{ form.reason.label }}" class="form-label">{{ form.reason.label }}

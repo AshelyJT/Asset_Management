@@ -4,7 +4,7 @@ from .models import *
 from django.utils import timezone
 
 
-class TransferAssetForm(forms.Form):
+""" class TransferAssetForm(forms.Form):
     asset = forms.ModelChoiceField(
         queryset=Asset.objects.all(),
         label="Asset",
@@ -22,13 +22,21 @@ class TransferAssetForm(forms.Form):
     reason = forms.CharField(
         max_length=200, label="Reason for Transfer", widget=forms.Textarea
     )
-
+ """
 
 class Modal_TransferAssetForm(forms.Form):
+    empty_label="--------------"
     to_department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
         label="To Department: ",
-        empty_label="Select a Department",
+        empty_label=empty_label,
+        widget=forms.Select(attrs={"class": "form-control", "required": "required"}),
+    )
+    
+    to_branch = forms.ModelChoiceField(
+        queryset=Branch.objects.all(),
+        label="To Branch: ",
+        empty_label=empty_label,
         widget=forms.Select(attrs={"class": "form-control", "required": "required"}),
     )
 
@@ -40,7 +48,7 @@ class Modal_TransferAssetForm(forms.Form):
 class AssetForm(forms.ModelForm):
     class Meta:
         model = Asset  # ✅ Links form to the Asset model
-        fields = ["name", "category", "model", "serial_number", "status", "location"]
+        fields = ["name", "category", "model", "serial_number", "status",]
 
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
@@ -48,7 +56,7 @@ class AssetForm(forms.ModelForm):
             "model": forms.TextInput(attrs={"class": "form-control"}),
             "serial_number": forms.TextInput(attrs={"class": "form-control"}),
             "status": forms.Select(attrs={"class": "form-control"}),
-            "location": forms.Select(attrs={"class": "form-control"}),
+            
         }
 
 
@@ -96,7 +104,7 @@ class AssetReportFilterForm(forms.Form):
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
-    location = forms.ModelChoiceField(
+    assigned_department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
         required=False,
         widget=forms.Select(attrs={"class": "form-control"}),
@@ -147,54 +155,8 @@ class NotificationFilterForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
     )
-""" 
-class IncomingEquipmentForm(forms.ModelForm):
-    class Meta:
-        model = IncomingEquipment
-        fields = ["notes"]
-        widgets = {
-            "notes": forms.Textarea(attrs={"rows": 3}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({"class": "form-control"})
-
-
-class ReceiveEquipmentForm(forms.ModelForm):
-    class Meta:
-        model = IncomingEquipment
-        fields = ["received_date", "notes"]
-        widgets = {
-            "received_date": forms.DateInput(attrs={"type": "date"}),
-            "notes": forms.Textarea(attrs={"rows": 3}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({"class": "form-control"})
-
-
-class IncomingEquipmentFilterForm(forms.Form):
-    status = forms.ChoiceField(
-        choices=[("", "All Statuses")] + IncomingEquipment.RECEIVING_STATUS,
-        required=False,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-
-    date_from = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
-    )
-
-    date_to = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
-    )
- """
-
+    
+    
 class ReceiveEquipmentForm(forms.ModelForm):
     class Meta:
         model = IncomingEquipment

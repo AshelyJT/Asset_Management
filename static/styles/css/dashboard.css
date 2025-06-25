@@ -370,6 +370,7 @@ form.example input[type=text] {
 .custom-card{
   border: 1px solid rgba(0, 132, 255, 0.4);
   background-color: rgba(0, 132, 255, 0.1);
+  min-height: 210.6px;
 }
 
 .custom-card-header{
