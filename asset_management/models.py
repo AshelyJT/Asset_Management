@@ -68,6 +68,11 @@ class Asset(models.Model):
         ("LOST", "Lost"),
         ("STOLEN", "Stolen"),
     ]
+    
+    TRANSFER_STATUS = [
+        ("PROCESSING", "PROCESSING"),
+        ("RECEIVED", "RECEIVED"),
+    ]
 
     asset_tag = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=200)
@@ -88,6 +93,7 @@ class Asset(models.Model):
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    transfer_status = models.CharField(choices=TRANSFER_STATUS, default="RECEIVED")
 
     def __str__(self):
         return f"{self.name} {self.model} ({self.asset_tag})"

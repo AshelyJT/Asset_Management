@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -38,8 +39,9 @@
                                             <p class="mb-2">
                                                 <strong class="w-100">
                                                     Asset Tag:
-                                                </strong> 
-                                                {{ equipment.asset.asset_tag }}</p>
+                                                </strong>
+                                                {{ equipment.asset.asset_tag }}
+                                            </p>
                                             <p class="mb-2">
                                                 <strong class="w-100">
                                                     Reason for Transfer:
@@ -81,15 +83,16 @@
                                         <button type="submit" name="receive_equipment" class="btn btn-primary w-100">
                                             <i class="fas fa-check-circle me-2"></i> Confirm Receipt
                                         </button>
-                                    </form>
                                 </div>
+                                </form>
                             </div>
                         </div>
-                    </div> <!-- end row -->
-                </div>
+                    </div>
+                </div> <!-- end row -->
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 

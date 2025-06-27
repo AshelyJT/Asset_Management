@@ -29,6 +29,7 @@
                     <th>Asset Tag</th>
                     <th>Asset Name</th>
                     <th>Status</th>
+                    <th>Transfer Status</th>
                 </tr>
             </thead>
             <tbody id="assetTableBody">
@@ -37,6 +38,7 @@
                     <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.asset_tag }}</a></td>
                     <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.name }} {{ asset.model }} {{ asset.category }}</a></td>
                     <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.status }}</a></td>
+                    <td><a href="{% url 'asset_detail' asset.asset_tag %}" class="link">{{ asset.transfer_status }}</a></td>
                 </tr>
                 {% empty %}
                 <tr>

@@ -55,10 +55,11 @@ def logout_view(request):
 def dashboard(request):
     user = request.user
     user_branch = user.profile.user_branch.branch_name
-    total_assets = Asset.objects.filter(assigned_branch__branch_name=user_branch).count()
+    total_assets = Asset.objects.filter(
+        assigned_branch__branch_name=user_branch
+    ).count()
     incoming_equipment_count = AssetTransfer.objects.filter(
-        to_branch=request.user.profile.user_branch,
-        transfer_status='PENDING'
+        to_branch=request.user.profile.user_branch, transfer_status="PENDING"
     ).count()
     context = {
         "total_assets": total_assets,
@@ -82,13 +83,11 @@ class ProtectedView(LoginRequiredMixin, View):
 @login_required
 def individual_assets_view(request):
     user = request.user
-    if not hasattr(user, 'profile') or not user.profile.user_branch:
+    if not hasattr(user, "profile") or not user.profile.user_branch:
         messages.error(request, "Your profile is not set up correctly.")
         return redirect("dashboard")
     user_branch = user.profile.user_branch
-    assets = Asset.objects.filter(
-        assigned_branch=user_branch
-    )
+    assets = Asset.objects.filter(assigned_branch=user_branch)
     context = {
         "assets": assets,
         "asset_categories": AssetCategory.objects.all(),
@@ -98,52 +97,62 @@ def individual_assets_view(request):
 
 @login_required
 def asset_detail(request, asset_tag):
-    form = Modal_TransferAssetForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
-        to_department = form.cleaned_data["to_department"]
-        to_branch = form.cleaned_data["to_branch"]
-        reason = form.cleaned_data["reason"]
-        asset_transfer = AssetTransfer.objects.create(
-            asset=selected_asset,
-            from_department=Department.objects.get(department_name=selected_asset.assigned_department.department_name),
-            from_branch=Branch.objects.get(branch_name=selected_asset.assigned_branch.branch_name),
-            to_department=to_department,
-            to_branch=to_branch,
-            reason=reason,
-            sent_by=request.user,
-        )
-        asset_transfer.save()
-        
-        create_incoming_equipment(
-            asset=selected_asset,
-            from_department=selected_asset.assigned_department,
-            notes=f"Asset transfer from {selected_asset.assigned_department} {selected_asset.assigned_branch} to {to_department.department_name} for reason: {reason}",
-            status="PENDING"
-        )
-        
-        create_notification(
-            recipient=request.user,
-            sender=request.user,
-            notification_type="ASSET_CHECKOUT",
-            title=f"{selected_asset.assigned_branch} - Asset Transfer for {selected_asset.name} {selected_asset.category} ({selected_asset.asset_tag})",
-            message=f"This asset {selected_asset.name} {selected_asset.model} with Serial number {selected_asset.serial_number} has been sent to {to_department.department_name} - {to_branch.branch_name} for this reason: {reason}",
-            related_object=asset_transfer,
-        )
-        messages.success(request, "Asset transfer request submitted successfully.")
-        return redirect("asset_detail", asset_tag=asset_tag)
     selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
-    context = {
-        "selected_asset": selected_asset,
-        "form": form,
-    }
-    return render(request, "assets/asset_detail.html", context)
+    if selected_asset.transfer_status == "PROCESSING":
+        return render(request, "assets/asset_detail.html", {"show_error_modal": True, "selected_asset":selected_asset})
+    else:
+        form = Modal_TransferAssetForm(request.POST or None)
+        if request.method == "POST" and form.is_valid():
+            to_department = form.cleaned_data["to_department"]
+            to_branch = form.cleaned_data["to_branch"]
+            reason = form.cleaned_data["reason"]
+            asset_transfer = AssetTransfer.objects.create(
+                asset=selected_asset,
+                from_department=Department.objects.get(
+                    department_name=selected_asset.assigned_department.department_name
+                ),
+                from_branch=Branch.objects.get(
+                    branch_name=selected_asset.assigned_branch.branch_name
+                ),
+                to_department=to_department,
+                to_branch=to_branch,
+                reason=reason,
+                sent_by=request.user,
+            )
+            asset_transfer.save()
+            selected_asset.transfer_status="PROCESSING"
+            selected_asset.save()
+
+            create_incoming_equipment(
+                asset=selected_asset,
+                from_department=selected_asset.assigned_department,
+                notes=f"Asset transfer from {selected_asset.assigned_department} {selected_asset.assigned_branch} to {to_department.department_name} for reason: {reason}",
+                status="PENDING",
+            )
+
+            create_notification(
+                recipient=request.user,
+                sender=request.user,
+                notification_type="ASSET_CHECKOUT",
+                title=f"{selected_asset.assigned_branch} - Asset Transfer for {selected_asset.name} {selected_asset.category} ({selected_asset.asset_tag})",
+                message=f"This asset {selected_asset.name} {selected_asset.model} with Serial number {selected_asset.serial_number} has been sent to {to_department.department_name} - {to_branch.branch_name} for this reason: {reason}",
+                related_object=asset_transfer,
+            )
+            messages.success(request, "Asset transfer request submitted successfully.")
+            return redirect("asset_detail", asset_tag=asset_tag)
+        selected_asset = get_object_or_404(Asset, asset_tag=asset_tag)
+        context = {
+            "selected_asset": selected_asset,
+            "form": form,
+        }
+        return render(request, "assets/asset_detail.html", context)
 
 
 def update_asset_location(asset, new_department, new_branch):
     asset.assigned_department = new_department
     asset.assigned_branch = new_branch
     asset.save()
+
 
 @login_required
 def reports(request):
@@ -194,7 +203,11 @@ def inquire_asset(request):
 
 @login_required
 def asset_reports(request):
-    assets = Asset.objects.select_related("category", "assigned_department", "assigned_branch",).all()
+    assets = Asset.objects.select_related(
+        "category",
+        "assigned_department",
+        "assigned_branch",
+    ).all()
     form = AssetReportFilterForm(request.GET or None)
 
     if form.is_valid():
@@ -397,31 +410,31 @@ def notification_count(request):
 
 @login_required
 def incoming_equipment_list(request):
-    user=request.user
-    user_branch=user.profile.user_branch
+    user = request.user
+    user_branch = user.profile.user_branch
     equipment_list = AssetTransfer.objects.filter(
-        to_branch=user_branch,
-        transfer_status='PENDING'
-    ).select_related('asset', 'from_department', 'to_department')
+        to_branch=user_branch, transfer_status="PENDING"
+    ).select_related("asset", "from_department", "to_department")
     form = ReceiveEquipmentForm(request.GET or None)
-    
+
     if form.is_valid():
-        date_from = form.cleaned_data.get('date_from')
-        date_to = form.cleaned_data.get('date_to')
-        
+        date_from = form.cleaned_data.get("date_from")
+        date_to = form.cleaned_data.get("date_to")
+
         if date_from:
             equipment_list = equipment_list.filter(expected_date__gte=date_from)
         if date_to:
             equipment_list = equipment_list.filter(expected_date__lte=date_to)
-    
+
     # Order by expected date (soonest first)
-    equipment_list = equipment_list.order_by('-id')
-    
+    equipment_list = equipment_list.order_by("-id")
+
     context = {
-        'equipment_list': equipment_list,
-        'form': form,
+        "equipment_list": equipment_list,
+        "form": form,
     }
-    return render(request, 'equipment/incoming_list.html', context)
+    return render(request, "equipment/incoming_list.html", context)
+
 
 @login_required
 def incoming_equipment_detail(request, pk):
@@ -429,7 +442,8 @@ def incoming_equipment_detail(request, pk):
     user_department = user.profile.user_department
     user_branch = user.profile.user_branch
     equipment = get_object_or_404(AssetTransfer, pk=pk, to_branch=user_branch)
-    if request.method == 'POST' and 'receive_equipment' in request.POST:
+    asset = get_object_or_404(Asset, pk=pk, to_branch=user_branch)
+    if request.method == "POST" and "receive_equipment" in request.POST:
         form = ReceiveEquipmentForm(request.POST, instance=equipment)
         if form.is_valid():
             equipment = form.save(commit=False)
@@ -437,31 +451,31 @@ def incoming_equipment_detail(request, pk):
             equipment.transfer_status = "RECEIVED"
             equipment.save()
             update_asset_location(
-                asset=equipment.asset, 
-                new_department=user_department, 
-                new_branch=user_branch
+                asset=equipment.asset,
+                new_department=user_department,
+                new_branch=user_branch,
             )
+            messages.success(request, "Equipment successfully received.")
             return redirect("incoming_equipment_list")
     else:
         form = ReceiveEquipmentForm(instance=equipment)
-    
+
     context = {
-        'equipment': equipment,
-        'form': form,
+        "equipment": equipment,
+        "form": form,
     }
-    return render(request, 'equipment/incoming_detail.html', context)
+    return render(request, "equipment/incoming_detail.html", context)
 
 
 def create_incoming_equipment(
-    asset=None, from_department=None, to_department=None, notes='', status='PENDING'
+    asset=None, from_department=None, to_department=None, notes="", status="PENDING"
 ):
     incoming_equipment = IncomingEquipment(
         asset=asset,
         from_department=from_department,
         to_department=to_department,
         notes=notes,
-        status=status
-        
+        status=status,
     )
     incoming_equipment.save()
     return incoming_equipment

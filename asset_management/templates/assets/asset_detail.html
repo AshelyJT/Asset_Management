@@ -12,6 +12,7 @@
     </ul>
     {% endif %}
 
+
     <div class="container">
         <ul class="list-group">
             <li class="list-group-item active" aria-current="true">
@@ -39,19 +40,19 @@
                 <strong>Current Branch:</strong> {{ selected_asset.assigned_branch }}
             </li>
             <li class="list-group-item">
-                <strong>Last Updated: </strong>{{ selected_asset.updated_at|date:"d M Y, H:i" }}
-            </li>
-            <li class="list-group-item">
                 <strong>Purchase Date: </strong> {{ selected_asset.purchase_date|date:"d M Y" }}
             </li>
             <li class="list-group-item">
+                <strong>Transfer Status: </strong> <strong class="{% if selected_asset.transfer_status == "PROCESSING" %} text-danger {% else %} text-success {% endif %}">{{ selected_asset.transfer_status }}</strong>
+            </li>
+            <li class=" list-group-item">
                 <strong>Comment: </strong> {{ selected_asset.notes|default:"No notes available" }}
             </li>
         </ul>
 
         <div class="custom-buttons-container">
-            <button type="button" class="btn btn-primary w-auto" data-bs-toggle="modal"
-                data-bs-target="#staticBackdrop">
+            <button type="button" class="btn btn-primary w-auto" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+                {% if selected_asset.transfer_status == "PROCESSING" %} disabled {% endif %}>
                 Transfer This Asset
             </button>
 
@@ -62,7 +63,8 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="staticBackdropLabel">Transfer of {{ selected_asset.category }} ({{ selected_asset.asset_tag }})
+                            <h5 class="modal-title" id="staticBackdropLabel">Transfer of {{ selected_asset.category }}
+                                ({{ selected_asset.asset_tag }})
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
