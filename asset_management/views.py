@@ -15,6 +15,10 @@ from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from .models import *
 from .forms import *
+from django.db import transaction
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -438,34 +442,84 @@ def incoming_equipment_list(request):
 
 @login_required
 def incoming_equipment_detail(request, pk):
-    user = request.user
-    user_department = user.profile.user_department
-    user_branch = user.profile.user_branch
-    equipment = get_object_or_404(AssetTransfer, pk=pk, to_branch=user_branch)
-    asset = get_object_or_404(Asset, pk=pk, to_branch=user_branch)
-    if request.method == "POST" and "receive_equipment" in request.POST:
-        form = ReceiveEquipmentForm(request.POST, instance=equipment)
-        if form.is_valid():
-            equipment = form.save(commit=False)
-            equipment.received_by = request.user
-            equipment.transfer_status = "RECEIVED"
-            equipment.save()
-            update_asset_location(
-                asset=equipment.asset,
-                new_department=user_department,
-                new_branch=user_branch,
-            )
-            messages.success(request, "Equipment successfully received.")
+    try:
+        user = request.user
+        
+        # First verify user profile is properly configured
+        try:
+            profile = user.profile
+            user_department = profile.user_department
+            user_branch = profile.user_branch
+            if not all([user_department, user_branch]):
+                messages.error(request, "Your profile is missing department or branch information")
+                return redirect("incoming_equipment_list")
+        except AttributeError as e:
+            logger.error(f"User profile error: {str(e)}")
+            messages.error(request, "Your user profile is not properly configured")
             return redirect("incoming_equipment_list")
-    else:
-        form = ReceiveEquipmentForm(instance=equipment)
 
-    context = {
-        "equipment": equipment,
-        "form": form,
-    }
-    return render(request, "equipment/incoming_detail.html", context)
+        # Get the transfer record with related asset
+        try:
+            equipment = get_object_or_404(
+                AssetTransfer.objects.select_related('asset'),
+                pk=pk,
+                to_branch=user_branch,
+                transfer_status="PENDING"  # Changed from PROCESSING to PENDING
+            )
+            asset = equipment.asset
+        except Exception as e:
+            logger.error(f"Equipment lookup error: {str(e)}")
+            messages.error(request, "Equipment record not found or already processed")
+            return redirect("incoming_equipment_list")
 
+        if request.method == "POST" and "receive_equipment" in request.POST:
+            form = ReceiveEquipmentForm(request.POST, instance=equipment)
+            if form.is_valid():
+                try:
+                    with transaction.atomic():
+                        # Update transfer record
+                        equipment = form.save(commit=False)
+                        equipment.received_by = user
+                        equipment.transfer_status = "RECEIVED"
+                        equipment.save()
+                        
+                        # Update asset
+                        asset.transfer_status = "RECEIVED"
+                        asset.save()
+                        
+                        # Update location
+                        try:
+                            update_asset_location(
+                                asset=asset,
+                                new_department=user_department,
+                                new_branch=user_branch,
+                            )
+                        except Exception as loc_error:
+                            logger.error(f"Location update failed: {str(loc_error)}")
+                            raise ValueError("Failed to update asset location") from loc_error
+                    
+                    messages.success(request, "Equipment successfully received.")
+                    return redirect("incoming_equipment_list")
+                except Exception as e:
+                    logger.error(f"Transaction failed: {str(e)}")
+                    messages.error(request, f"Failed to complete receipt: {str(e)}")
+                    return redirect("incoming_equipment_detail", pk=pk)
+            else:
+                messages.error(request, "Form contains invalid data")
+                logger.warning(f"Form errors: {form.errors}")
+        else:
+            form = ReceiveEquipmentForm(instance=equipment)
+
+        context = {
+            "equipment": equipment,
+            "form": form,
+        }
+        return render(request, "equipment/incoming_detail.html", context)
+
+    except Exception as e:
+        logger.exception("Unexpected error in incoming_equipment_detail")
+        messages.error(request, "An unexpected error occurred while processing the request")
+        return redirect("incoming_equipment_list")
 
 def create_incoming_equipment(
     asset=None, from_department=None, to_department=None, notes="", status="PENDING"
@@ -479,3 +533,5 @@ def create_incoming_equipment(
     )
     incoming_equipment.save()
     return incoming_equipment
+
+

@@ -5,38 +5,48 @@ from django.utils import timezone
 
 
 class Modal_TransferAssetForm(forms.Form):
-    empty_label="--------------"
+    empty_label = "--------------"
+    
     to_department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
-        label="To Department: ",
+        label="To Department:",
         empty_label=empty_label,
-        widget=forms.Select(attrs={"class": "form-control", "required": "required"}),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "required": "required"
+        }),
     )
     
     to_branch = forms.ModelChoiceField(
         queryset=Branch.objects.all(),
-        label="To Branch: ",
+        label="To Branch:",
         empty_label=empty_label,
-        widget=forms.Select(attrs={"class": "form-control", "required": "required"}),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "required": "required"
+        }),
     )
 
     reason = forms.CharField(
-        max_length=200, label="Reason for Transfer: ", widget=forms.Textarea
+        max_length=200,
+        label="Reason for Transfer:",
+        widget=forms.Textarea(attrs={
+            "class": "form-control",
+            "rows": 3
+        })
     )
 
 
 class AssetForm(forms.ModelForm):
     class Meta:
-        model = Asset  # ✅ Links form to the Asset model
-        fields = ["name", "category", "model", "serial_number", "status",]
-
+        model = Asset
+        fields = ["name", "category", "model", "serial_number", "status"]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "category": forms.Select(attrs={"class": "form-control"}),
             "model": forms.TextInput(attrs={"class": "form-control"}),
             "serial_number": forms.TextInput(attrs={"class": "form-control"}),
             "status": forms.Select(attrs={"class": "form-control"}),
-            
         }
 
 
@@ -44,14 +54,21 @@ class BulkAssetForm(forms.ModelForm):
     class Meta:
         model = BulkAsset
         fields = [
-            "name",
-            "category",
-            "quantity",
-            "purchase_date",
-            "vendor",
-            "status",
-            "location",
+            "name", "category", "quantity", "purchase_date", 
+            "vendor", "status", "location"
         ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "category": forms.Select(attrs={"class": "form-control"}),
+            "quantity": forms.NumberInput(attrs={"class": "form-control"}),
+            "purchase_date": forms.DateInput(attrs={
+                "class": "form-control",
+                "type": "date"
+            }),
+            "vendor": forms.Select(attrs={"class": "form-control"}),
+            "status": forms.Select(attrs={"class": "form-control"}),
+            "location": forms.Select(attrs={"class": "form-control"}),
+        }
 
 
 class AssetInquiryForm(forms.ModelForm):
@@ -59,21 +76,23 @@ class AssetInquiryForm(forms.ModelForm):
         model = AssetInquiry
         fields = ["asset_type", "description", "quantity", "priority"]
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 3}),
+            "asset_type": forms.Select(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3
+            }),
+            "quantity": forms.NumberInput(attrs={"class": "form-control"}),
+            "priority": forms.Select(attrs={"class": "form-control"}),
         }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
-        # Add Bootstrap classes to form fields
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({"class": "form-control"})
-
 
 class AssetReportFilterForm(forms.Form):
     status = forms.ChoiceField(
-        choices=[("", "All Statuses")] + Asset.ASSET_STATUS,
+        choices=[("", "All Statuses")] + Asset.ASSET_STATUS_CHOICES,
         required=False,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
@@ -98,12 +117,18 @@ class AssetReportFilterForm(forms.Form):
 
     date_from = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        widget=forms.DateInput(attrs={
+            "type": "date",
+            "class": "form-control"
+        }),
     )
 
     date_to = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        widget=forms.DateInput(attrs={
+            "type": "date",
+            "class": "form-control"
+        }),
     )
 
     export_format = forms.ChoiceField(
@@ -128,22 +153,36 @@ class NotificationFilterForm(forms.Form):
 
     date_from = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        widget=forms.DateInput(attrs={
+            "type": "date",
+            "class": "form-control"
+        }),
     )
 
     date_to = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        widget=forms.DateInput(attrs={
+            "type": "date",
+            "class": "form-control"
+        }),
     )
-    
-    
+
+
 class ReceiveEquipmentForm(forms.ModelForm):
     class Meta:
-        model = IncomingEquipment
+        model = AssetTransfer  # Changed from IncomingEquipment to AssetTransfer
         fields = ['received_date', 'notes']
         widgets = {
-            'received_date': forms.DateInput(attrs={'type': 'date', 'max': timezone.now().date()}),
-            'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter any notes about the condition or contents'}),
+            'received_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'max': timezone.now().date()
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter any notes about the condition or contents'
+            }),
         }
 
     def clean_received_date(self):

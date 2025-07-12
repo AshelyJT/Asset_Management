@@ -61,7 +61,7 @@ class AssetCategory(models.Model):
 
 
 class Asset(models.Model):
-    ASSET_STATUS = [
+    ASSET_STATUS_CHOICES = [
         ("OPERATIONAL", "Operational"),
         ("NON_OPERATIONAL", "Non-Operational"),
         ("DECOMMISSIONED", "Decommissioned"),
@@ -82,7 +82,7 @@ class Asset(models.Model):
     purchase_date = models.DateField()
     vendor = models.ForeignKey(Vendor, on_delete=models.PROTECT)
     status = models.CharField(
-        max_length=20, choices=ASSET_STATUS, default="OPERATIONAL"
+        max_length=20, choices=ASSET_STATUS_CHOICES, default="OPERATIONAL"
     )
     assigned_department = models.ForeignKey(
         Department, on_delete=models.PROTECT, related_name="assets", null=True, blank=True
@@ -148,6 +148,7 @@ class AssetTransfer(models.Model):
         blank=True,
     )
     notes = models.TextField(blank=True)
+    received_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"Transfer of {self.asset.name} to {self.to_department}"

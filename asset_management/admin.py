@@ -3,7 +3,7 @@ from .models import *
 
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'model', 'category', 'status', 'asset_tag')
+    list_display = ('name', 'model', 'category', 'status', 'asset_tag', 'transfer_status')
     list_filter = ('category', 'status')
     search_fields = ('asset_tag', 'serial_number', 'name')
     date_hierarchy = 'purchase_date'
