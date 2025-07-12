@@ -39,4 +39,5 @@ urlpatterns = [
     path('asset_management/notifications/count/', views.notification_count, name='notification_count'),
     path('incoming/', views.incoming_equipment_list, name='incoming_equipment_list'),
     path('incoming/<int:pk>/', views.incoming_equipment_detail, name='incoming_equipment_detail'),
+    path('outgoing-equipment/', views.outgoing_equipment_list, name='outgoing_equipment_list'),
 ]

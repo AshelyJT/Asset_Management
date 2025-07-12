@@ -535,3 +535,34 @@ def create_incoming_equipment(
     return incoming_equipment
 
 
+@login_required
+def outgoing_equipment_list(request):
+    user = request.user
+    try:
+        user_branch = user.profile.user_branch
+    except AttributeError:
+        messages.error(request, "Your profile is not properly configured with a branch.")
+        return redirect("dashboard")
+
+    # Get all pending transfers initiated by this user from their branch
+    outgoing_transfers = AssetTransfer.objects.filter(
+        from_branch=user_branch,
+        transfer_status="PENDING",
+        sent_by=user
+    ).select_related(
+        'asset',
+        'to_department',
+        'to_branch',
+        'from_department'
+    ).order_by('-transfer_date')
+
+    # Add pagination
+    paginator = Paginator(outgoing_transfers, 20)  # Show 20 per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'title': 'Outgoing Equipment Transfers',
+    }
+    return render(request, 'equipment/outgoing_list.html', context)
