@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Request Details</h2>
+            <p class="text-muted">Details of your equipment request</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'my_equipment_requests' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Requests
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Request Information</h4>
+                    <dl class="row">
+                        <dt class="col-sm-4">Request Date:</dt>
+                        <dd class="col-sm-8">{{ inquiry.submitted_date|date:"Y-m-d H:i" }}</dd>
+
+                        <dt class="col-sm-4">Equipment Type:</dt>
+                        <dd class="col-sm-8">{{ inquiry.get_asset_type_display }}</dd>
+
+                        <dt class="col-sm-4">Quantity:</dt>
+                        <dd class="col-sm-8">{{ inquiry.quantity }}</dd>
+
+                        <dt class="col-sm-4">Priority:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge 
+                                {% if inquiry.priority == 'HIGH' or inquiry.priority == 'CRITICAL' %}bg-danger
+                                {% elif inquiry.priority == 'MEDIUM' %}bg-warning text-dark
+                                {% else %}bg-secondary{% endif %}">
+                                {{ inquiry.get_priority_display }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge 
+                                {% if inquiry.status == 'APPROVED' %}bg-success
+                                {% elif inquiry.status == 'DENIED' %}bg-danger
+                                {% elif inquiry.status == 'FULFILLED' %}bg-info text-dark
+                                {% else %}bg-primary{% endif %}">
+                                {{ inquiry.get_status_display }}
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h4>Request Details</h4>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Description:</h5>
+                            <p>{{ inquiry.description }}</p>
+
+                            {% if inquiry.status == 'DENIED' and inquiry.notes %}
+                            <h5 class="mt-3">Admin Notes:</h5>
+                            <div class="alert alert-warning">
+                                {{ inquiry.notes }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

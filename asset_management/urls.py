@@ -22,4 +22,6 @@ urlpatterns = [
     path('incoming/', views.incoming_equipment_list, name='incoming_equipment_list'),
     path('incoming/<int:pk>/', views.incoming_equipment_detail, name='incoming_equipment_detail'),
     path('outgoing-equipment/', views.outgoing_equipment_list, name='outgoing_equipment_list'),
+    path('my-requests/', views.my_equipment_requests, name='my_equipment_requests'),
+    path('request/<int:pk>/', views.request_detail, name='request_detail'),
 ]

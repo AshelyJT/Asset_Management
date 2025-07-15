@@ -65,6 +65,12 @@ def dashboard(request):
     incoming_equipment_count = AssetTransfer.objects.filter(
         to_branch=request.user.profile.user_branch, transfer_status="PENDING"
     ).count()
+    outgoing_equipment_count = AssetTransfer.objects.filter(
+        from_branch=request.user.profile.user_branch, transfer_status="PENDING"
+    ).count()
+    inquiries_count = AssetInquiry.objects.filter(
+        user=request.user, status="PENDING"
+    ).count()
     context = {
         "total_assets": total_assets,
         "total_bulk_assets": BulkAsset.objects.aggregate(
@@ -72,6 +78,8 @@ def dashboard(request):
         )["total_quantity"]
         or 0,
         "incoming_equipment_count": incoming_equipment_count,
+        "outgoing_equipment_count": outgoing_equipment_count,
+        "inquiries_count": inquiries_count,
     }
     return render(request, "dashboard.html", context)
 
@@ -548,7 +556,7 @@ def outgoing_equipment_list(request):
     outgoing_transfers = AssetTransfer.objects.filter(
         from_branch=user_branch,
         transfer_status="PENDING",
-        sent_by=user
+        sent_by=user 
     ).select_related(
         'asset',
         'to_department',
@@ -566,3 +574,41 @@ def outgoing_equipment_list(request):
         'title': 'Outgoing Equipment Transfers',
     }
     return render(request, 'equipment/outgoing_list.html', context)
+
+
+@login_required
+def my_equipment_requests(request):
+    user = request.user
+    
+    # Get all requests sent by this user
+    requests = AssetInquiry.objects.filter(
+        user=user
+    ).select_related(
+        'user'
+    ).order_by('-submitted_date')
+    
+    # Add filtering
+    status_filter = request.GET.get('status', None)
+    if status_filter:
+        requests = requests.filter(status=status_filter)
+    
+    # Pagination
+    paginator = Paginator(requests, 10)  # Show 10 requests per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'status_choices': AssetInquiry._meta.get_field('status').choices,
+        'current_status': status_filter,
+    }
+    return render(request, 'requests/my_requests.html', context)
+
+@login_required
+def request_detail(request, pk):
+    inquiry = get_object_or_404(AssetInquiry, pk=pk, user=request.user)
+    
+    context = {
+        'inquiry': inquiry,
+    }
+    return render(request, 'requests/request_detail.html', context)

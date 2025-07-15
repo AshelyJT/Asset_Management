@@ -55,34 +55,25 @@
                     <i class="fas fa-tools"></i>
                 </div>
             </div>
-            <div class="custom-card-value">47</div>
+            <div class="custom-card-value">{{ outgoing_equipment_count }}</div>
             <div class="custom-card-title">Sent for repairs/maintainance</div>
         </div>
     </a>
 
-    <!-- Active Users -->
-    <div class="custom-card">
-        <div class="custom-card-header">
-            <h3>Assigned Assets</h3>
-            <div class="custom-card-icon bg-success">
-                <i class="fas fa-users"></i>
+    <!-- Equipment Requests -->
+    <a href="{% url 'my_equipment_requests' %}" class="custom-card-link">
+        <div class="custom-card">
+            <div class="custom-card-header">
+                <h3>Inquiries</h3>
+                <div class="custom-card-icon bg-success">
+                    <i class="fas fa-list"></i>
+                </div>
             </div>
+            <div class="custom-card-value">{{ inquiries_count }}</div>
+            <div class="custom-card-title">Requests for equipment</div>
         </div>
-        <div class="custom-card-value">324</div>
-        <div class="custom-card-title">Currently assigned assets</div>
-    </div>
+    </a>
 
-    <!-- Warranty Expiring -->
-    <div class="custom-card">
-        <div class="custom-card-header">
-            <h3>Inquiries</h3>
-            <div class="custom-card-icon bg-secondary">
-                <i class="fas fa-calendar-times"></i>
-            </div>
-        </div>
-        <div class="custom-card-value">28</div>
-        <div class="custom-card-title">Requests for equipment</div>
-    </div>
 </div>
 
 <!-- Recent Activity Section -->

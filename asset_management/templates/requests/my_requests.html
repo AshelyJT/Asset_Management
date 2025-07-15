@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>My Equipment Requests</h2>
+            <p class="text-muted">View all equipment requests you've submitted</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'inquire_asset' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Request
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="status" class="col-form-label">Filter by status:</label>
+                    </div>
+                    <div class="col-auto">
+                        <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Statuses</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Apply</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Request Date</th>
+                            <th>Equipment Type</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in page_obj %}
+                        <tr>
+                            <td>{{ req.submitted_date|date:"Y-m-d H:i" }}</td>
+                            <td>{{ req.get_asset_type_display }}</td>
+                            <td>{{ req.description|truncatechars:50 }}</td>
+                            <td>{{ req.quantity }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if req.priority == 'HIGH' or req.priority == 'CRITICAL' %}bg-danger
+                                    {% elif req.priority == 'MEDIUM' %}bg-warning text-dark
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ req.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if req.status == 'APPROVED' %}bg-success
+                                    {% elif req.status == 'DENIED' %}bg-danger
+                                    {% elif req.status == 'FULFILLED' %}bg-info text-dark
+                                    {% else %}bg-primary{% endif %}">
+                                    {{ req.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'request_detail' req.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No requests found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}"
+                           aria-label="Previous">
+                           <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link"
+                           href="?page={{ num }}{% if current_status %}&status={{ current_status }}{% endif %}">{{ num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}"
+                           aria-label="Next">
+                           <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
