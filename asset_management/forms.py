@@ -190,3 +190,22 @@ class ReceiveEquipmentForm(forms.ModelForm):
         if received_date and received_date > timezone.now().date():
             raise ValidationError("Received date cannot be in the future")
         return received_date
+    
+    
+class AdminRequestActionForm(forms.ModelForm):
+    class Meta:
+        model = AssetInquiry
+        fields = ['status', 'admin_notes']
+        widgets = {
+            'admin_notes': forms.Textarea(attrs={'rows': 3}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Limit status choices for admins
+        self.fields['status'].choices = [
+            ('APPROVED', 'Approved'),
+            ('DENIED', 'Denied'),
+            ('FULFILLED', 'Fulfilled'),
+        ]

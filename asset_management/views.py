@@ -612,3 +612,64 @@ def request_detail(request, pk):
         'inquiry': inquiry,
     }
     return render(request, 'requests/request_detail.html', context)
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def manage_requests(request):
+    # Get all pending requests (or filter as needed)
+    inquiries = AssetInquiry.objects.filter(
+        status__in=['PENDING', 'APPROVED']
+    ).select_related(
+        'user'
+    ).order_by('-submitted_date')
+    
+    # Filtering
+    status_filter = request.GET.get('status', None)
+    if status_filter:
+        inquiries = inquiries.filter(status=status_filter)
+    
+    # Pagination
+    paginator = Paginator(inquiries, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'status_choices': AssetInquiry._meta.get_field('status').choices,
+        'current_status': status_filter,
+    }
+    return render(request, 'requests/admin/manage_requests.html', context)
+
+@staff_member_required
+def process_request(request, pk):
+    inquiry = get_object_or_404(AssetInquiry, pk=pk)
+    
+    if request.method == 'POST':
+        form = AdminRequestActionForm(request.POST, instance=inquiry)
+        if form.is_valid():
+            inquiry = form.save(commit=False)
+            inquiry.processed_by = request.user
+            inquiry.processed_date = timezone.now()
+            inquiry.save()
+            
+            # Create notification for the user
+            create_notification(
+                sender=request.user,
+                recipient=inquiry.user,
+                notification_type="REQUEST_UPDATE",
+                title=f"Your request for {inquiry.get_asset_type_display()} has been {inquiry.get_status_display()}",
+                message=f"Admin action: {inquiry.admin_notes or 'No additional notes provided'}",
+                related_object=inquiry
+            )
+            
+            messages.success(request, "Request processed successfully.")
+            return redirect('manage_requests')
+    else:
+        form = AdminRequestActionForm(instance=inquiry)
+    
+    context = {
+        'inquiry': inquiry,
+        'form': form,
+    }
+    return render(request, 'requests/admin/process_request.html', context)

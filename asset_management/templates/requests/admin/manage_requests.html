@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Manage Equipment Requests</h2>
+            <p class="text-muted">Review and process equipment requests</p>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="form-inline">
+                <div class="form-group mr-3">
+                    <label for="status" class="mr-2">Filter by status:</label>
+                    <select name="status" id="status" class="form-control" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Request Date</th>
+                            <th>User</th>
+                            <th>Equipment</th>
+                            <th>Description</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in page_obj %}
+                        <tr>
+                            <td>{{ req.submitted_date|date:"Y-m-d H:i" }}</td>
+                            <td>{{ req.user.get_full_name|default:req.user.username }}</td>
+                            <td>{{ req.get_asset_type_display }}</td>
+                            <td>{{ req.description|truncatechars:50 }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if req.priority == 'HIGH' or req.priority == 'CRITICAL' %}badge-danger
+                                    {% elif req.priority == 'MEDIUM' %}badge-warning
+                                    {% else %}badge-secondary{% endif %}">
+                                    {{ req.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if req.status == 'APPROVED' %}badge-success
+                                    {% elif req.status == 'DENIED' %}badge-danger
+                                    {% elif req.status == 'FULFILLED' %}badge-info
+                                    {% else %}badge-primary{% endif %}">
+                                    {{ req.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'process_request' req.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-cog"></i> Manage
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No requests found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% include 'partials/pagination.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

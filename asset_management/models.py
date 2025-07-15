@@ -210,6 +210,16 @@ class AssetInquiry(models.Model):
             ("FULFILLED", "Fulfilled"),
         ],
     )
+    
+    admin_notes = models.TextField(blank=True, null=True)
+    processed_by = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='processed_inquiries'
+    )
+    processed_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.get_asset_type_display()} request by {self.user.username}"
