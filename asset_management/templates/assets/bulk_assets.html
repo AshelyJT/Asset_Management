@@ -16,9 +16,10 @@
             <tr>
                 <th>Asset Name</th>
                 <th>Category</th>
-                <th>Status</th>
-                <th>Location</th>
-                <th>Quantity</th>
+                <th>Available</th>
+                <th>In use</th>
+                <th>Department</th>
+                <th>Total Quantity</th>
             </tr>
         </thead>
         <tbody>
@@ -26,9 +27,10 @@
             <tr>
                 <td>{{ bulk_asset.name }}</td>
                 <td>{{ bulk_asset.category }}</td>
-                <td>{{ bulk_asset.status }}</td>
+                <td>{{ bulk_asset.available_quantity }}</td>
+                <td>{{ bulk_asset.in_use_quantity }}</td>
                 <td>{{ bulk_asset.location }}</td>
-                <td>{{ bulk_asset.quantity }}</td>
+                <td>{{ bulk_asset.total_quantity }}</td>
             </tr>
             {% endfor %}
         </tbody>

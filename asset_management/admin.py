@@ -14,7 +14,6 @@ admin.site.register(Branch)
 admin.site.register(Department)
 admin.site.register(Vendor)
 admin.site.register(AssetCategory)
-admin.site.register(BulkAsset)
 admin.site.register(IncomingEquipment)
 
 
@@ -78,3 +77,10 @@ class NotificationAdmin(admin.ModelAdmin):
             'fields': ('is_read', 'read_at', 'created_at')
         }),
     )
+    
+@admin.register(BulkAsset)
+class BulkAssetAdmin(admin.ModelAdmin):
+    list_display = ('name', 'category', 'total_quantity', 'available_quantity','in_use_quantity', 'depleted_quantity', 'location')
+    list_filter = ('category', 'location')
+    search_fields = ('name', 'category__name')
+    readonly_fields = ('total_quantity',)

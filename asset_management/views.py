@@ -71,15 +71,21 @@ def dashboard(request):
     inquiries_count = AssetInquiry.objects.filter(
         user=request.user, status="PENDING"
     ).count()
+    requests_count = AssetInquiry.objects.filter(
+        status="PENDING",
+    ).count()
+    aggregated = BulkAsset.objects.aggregate(
+        total_available=Sum("available_quantity"),
+        total_in_use=Sum("in_use_quantity")
+    )
+    overall_total_quantity = aggregated["total_available"] + aggregated["total_in_use"]
     context = {
         "total_assets": total_assets,
-        "total_bulk_assets": BulkAsset.objects.aggregate(
-            total_quantity=Sum("quantity")
-        )["total_quantity"]
-        or 0,
+        "total_bulk_assets":  overall_total_quantity,
         "incoming_equipment_count": incoming_equipment_count,
         "outgoing_equipment_count": outgoing_equipment_count,
         "inquiries_count": inquiries_count,
+        "requests_count": requests_count,
     }
     return render(request, "dashboard.html", context)
 
@@ -177,13 +183,11 @@ def reports(request):
 
 @login_required
 def bulk_assets(request):
+    form = BulkAssetForm()
+    bulk_assets = BulkAsset.objects.all()
     context = {
-        "form": BulkAssetForm(),
-        "bulk_assets": BulkAsset.objects.all(),
-        "total_bulk_assets": BulkAsset.objects.aggregate(
-            total_quantity=Sum("quantity")
-        )["total_quantity"]
-        or 0,
+        "form": form,
+        "bulk_assets": bulk_assets,
     }
     return render(request, "assets/bulk_assets.html", context)
 
@@ -206,7 +210,7 @@ def inquire_asset(request):
                 title="Asset Inquiry Submitted",
                 message=f"Requesting for {inquiry.asset_type} for this reason: {inquiry.description}",
             )
-            return redirect("assets/inquire_asset")
+            return redirect("inquire_asset")
     else:
         form = AssetInquiryForm(user=request.user)
 

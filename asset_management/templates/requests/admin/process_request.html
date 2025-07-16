@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
-{% load static crispy_forms_tags %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
-        <div class="col-md-8">
+        <div class="col-8">
             <h2>Process Request</h2>
             <p class="text-muted">Review and take action on this equipment request</p>
         </div>
-        <div class="col-md-4 text-right">
+        <div class="col-4 text-end">
             <a href="{% url 'manage_requests' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Requests
             </a>
@@ -16,10 +15,10 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Request Details</h6>
+                    <h6 class="m-0 fw-bold text-primary">Request Details</h6>
                 </div>
                 <div class="card-body">
                     <dl class="row">
@@ -38,9 +37,9 @@
                         <dt class="col-sm-4">Priority:</dt>
                         <dd class="col-sm-8">
                             <span class="badge 
-                                {% if inquiry.priority == 'HIGH' or inquiry.priority == 'CRITICAL' %}badge-danger
-                                {% elif inquiry.priority == 'MEDIUM' %}badge-warning
-                                {% else %}badge-secondary{% endif %}">
+                                {% if inquiry.priority == 'HIGH' or inquiry.priority == 'CRITICAL' %}text-bg-danger
+                                {% elif inquiry.priority == 'MEDIUM' %}text-bg-warning
+                                {% else %}text-bg-secondary{% endif %}">
                                 {{ inquiry.get_priority_display }}
                             </span>
                         </dd>
@@ -48,10 +47,10 @@
                         <dt class="col-sm-4">Current Status:</dt>
                         <dd class="col-sm-8">
                             <span class="badge 
-                                {% if inquiry.status == 'APPROVED' %}badge-success
-                                {% elif inquiry.status == 'DENIED' %}badge-danger
-                                {% elif inquiry.status == 'FULFILLED' %}badge-info
-                                {% else %}badge-primary{% endif %}">
+                                {% if inquiry.status == 'APPROVED' %}text-bg-success
+                                {% elif inquiry.status == 'DENIED' %}text-bg-danger
+                                {% elif inquiry.status == 'FULFILLED' %}text-bg-info
+                                {% else %}text-bg-primary{% endif %}">
                                 {{ inquiry.get_status_display }}
                             </span>
                         </dd>
@@ -63,24 +62,26 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-6">
             <div class="card shadow">
                 <div class="card-header py-3 bg-warning">
-                    <h6 class="m-0 font-weight-bold text-white">Admin Actions</h6>
+                    <h6 class="m-0 fw-bold text-white">Admin Actions</h6>
                 </div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        {{ form|crispy }}
-                        <div class="form-group mt-4">
-                            <button type="submit" name="action" value="approve" class="btn btn-success mr-2">
+                        <div class="mb-3">
+                            <label for="adminNote" class="form-label fw-bold">Admin Notes</label>
+                            <textarea class="form-control" id="adminNote" name="admin_note" rows="3"
+                                placeholder="Enter your notes here..."></textarea>
+                        </div>
+
+                        <div class="mt-4 mb-3">
+                            <button type="submit" name="action" value="approve" class="btn btn-success me-2">
                                 <i class="fas fa-check"></i> Approve
                             </button>
-                            <button type="submit" name="action" value="deny" class="btn btn-danger mr-2">
+                            <button type="submit" name="action" value="deny" class="btn btn-danger me-2">
                                 <i class="fas fa-times"></i> Deny
-                            </button>
-                            <button type="submit" name="action" value="fulfill" class="btn btn-info">
-                                <i class="fas fa-check-double"></i> Mark Fulfilled
                             </button>
                         </div>
                     </form>

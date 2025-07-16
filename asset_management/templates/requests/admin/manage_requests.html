@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
-        <div class="col-md-8">
+        <div class="col-8">
             <h2>Manage Equipment Requests</h2>
             <p class="text-muted">Review and process equipment requests</p>
         </div>
@@ -13,10 +13,10 @@
     <!-- Filter Form -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" class="form-inline">
-                <div class="form-group mr-3">
-                    <label for="status" class="mr-2">Filter by status:</label>
-                    <select name="status" id="status" class="form-control" onchange="this.form.submit()">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Filter by status:</label>
+                    <select name="status" id="status" class="form-select" onchange="this.form.submit()">
                         <option value="">All Statuses</option>
                         {% for value, label in status_choices %}
                         <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
@@ -25,7 +25,16 @@
                         {% endfor %}
                     </select>
                 </div>
-                <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
+
+                <div class="col-md-6">
+                    <label for="adminNote" class="form-label">Optional Notes:</label>
+                    <input type="text" name="admin_note" id="adminNote" class="form-control"
+                        placeholder="e.g. 'Urgent requests only'" value="{{ request.GET.admin_note }}">
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-secondary w-100">Apply</button>
+                </div>
             </form>
         </div>
     </div>
@@ -35,7 +44,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
-                    <thead class="thead-light">
+                    <thead class="table-light">
                         <tr>
                             <th>Request Date</th>
                             <th>User</th>
@@ -55,18 +64,18 @@
                             <td>{{ req.description|truncatechars:50 }}</td>
                             <td>
                                 <span class="badge 
-                                    {% if req.priority == 'HIGH' or req.priority == 'CRITICAL' %}badge-danger
-                                    {% elif req.priority == 'MEDIUM' %}badge-warning
-                                    {% else %}badge-secondary{% endif %}">
+                                    {% if req.priority == 'HIGH' or req.priority == 'CRITICAL' %}text-bg-danger
+                                    {% elif req.priority == 'MEDIUM' %}text-bg-warning
+                                    {% else %}text-bg-secondary{% endif %}">
                                     {{ req.get_priority_display }}
                                 </span>
                             </td>
                             <td>
                                 <span class="badge 
-                                    {% if req.status == 'APPROVED' %}badge-success
-                                    {% elif req.status == 'DENIED' %}badge-danger
-                                    {% elif req.status == 'FULFILLED' %}badge-info
-                                    {% else %}badge-primary{% endif %}">
+                                    {% if req.status == 'APPROVED' %}text-bg-success
+                                    {% elif req.status == 'DENIED' %}text-bg-danger
+                                    {% elif req.status == 'FULFILLED' %}text-bg-info
+                                    {% else %}text-bg-primary{% endif %}">
                                     {{ req.get_status_display }}
                                 </span>
                             </td>
@@ -84,9 +93,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination -->
-            {% include 'partials/pagination.html' %}
         </div>
     </div>
 </div>

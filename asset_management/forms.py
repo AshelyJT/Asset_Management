@@ -54,13 +54,12 @@ class BulkAssetForm(forms.ModelForm):
     class Meta:
         model = BulkAsset
         fields = [
-            "name", "category", "quantity", "purchase_date", 
+            "name", "category", "purchase_date", 
             "vendor", "status", "location"
         ]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
-            "category": forms.Select(attrs={"class": "form-control"}),
-            "quantity": forms.NumberInput(attrs={"class": "form-control"}),
+            "category": forms.Select(attrs={"class": "form-control"}),        
             "purchase_date": forms.DateInput(attrs={
                 "class": "form-control",
                 "type": "date"

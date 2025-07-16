@@ -24,6 +24,6 @@ urlpatterns = [
     path('outgoing-equipment/', views.outgoing_equipment_list, name='outgoing_equipment_list'),
     path('my-requests/', views.my_equipment_requests, name='my_equipment_requests'),
     path('request/<int:pk>/', views.request_detail, name='request_detail'),
-    path('admin/requests/', views.manage_requests, name='manage_requests'),
-    path('admin/request/<int:pk>/process/', views.process_request, name='process_request'),
+    path('requests/', views.manage_requests, name='manage_requests'),
+    path('request/<int:pk>/process/', views.process_request, name='process_request'),
 ]

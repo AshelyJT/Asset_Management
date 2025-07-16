@@ -157,7 +157,9 @@ class AssetTransfer(models.Model):
 class BulkAsset(models.Model):
     name = models.CharField(max_length=200)
     category = models.ForeignKey(AssetCategory, on_delete=models.PROTECT)
-    quantity = models.PositiveIntegerField(default=1)
+    available_quantity = models.PositiveIntegerField(default=0)
+    in_use_quantity = models.PositiveIntegerField(default=0)
+    depleted_quantity = models.PositiveIntegerField(default=0)
     purchase_date = models.DateField()
     vendor = models.ForeignKey(Vendor, on_delete=models.PROTECT)
     status = models.CharField(
@@ -171,8 +173,12 @@ class BulkAsset(models.Model):
     )
     location = models.ForeignKey(Department, on_delete=models.PROTECT)
 
+    @property
+    def total_quantity(self):
+        return self.in_use_quantity + self.available_quantity
+
     def __str__(self):
-        return f"{self.name} - Qty: {self.quantity}"
+        return f"{self.name} - Qty: {self.total_quantity}"
 
 
 class AssetInquiry(models.Model):
