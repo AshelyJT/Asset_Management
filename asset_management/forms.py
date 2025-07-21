@@ -36,46 +36,18 @@ class Modal_TransferAssetForm(forms.Form):
         })
     )
     
-class Modal_BulkTransferAssetForm(forms.Form):
-    empty_label = "--------------"
-    
-    quantity = forms.IntegerField(
-        min_value=1,
-        label="Quantity:",
-        widget=forms.NumberInput(attrs={
-            "class": "form-control",
-            "required": "required"
-        })
-    )
-    to_department = forms.ModelChoiceField(
-        queryset=Department.objects.all(),
-        label="To Department:",
-        empty_label=empty_label,
-        widget=forms.Select(attrs={
-            "class": "form-control",
-            "required": "required"
-        }),
-    )
-    
-    to_branch = forms.ModelChoiceField(
-        queryset=Branch.objects.all(),
-        label="To Branch:",
-        empty_label=empty_label,
-        widget=forms.Select(attrs={
-            "class": "form-control",
-            "required": "required"
-        }),
-    )
+class Modal_BulkTransferAssetForm(forms.ModelForm):
+    class Meta:
+        model = BulkAssetTransfer
+        fields = ['quantity', 'to_department', 'to_branch', 'reason']
 
-    reason = forms.CharField(
-        max_length=200,
-        label="Reason for Transfer:",
-        widget=forms.Textarea(attrs={
-            "class": "form-control",
-            "rows": 3
-        })
-    )
-
+    def save(self, bulk_asset, user, commit=True):
+        instance = super().save(commit=False)
+        instance.bulk_asset = bulk_asset
+        instance.sent_by = user
+        if commit:
+            instance.save()
+        return instance
 
 class AssetForm(forms.ModelForm):
     class Meta:

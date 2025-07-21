@@ -191,6 +191,62 @@ class BulkAsset(models.Model):
         return f"{self.name} - Qty: {self.total_quantity}"
 
 
+class BulkAssetTransfer(models.Model):
+    transfer_options = [
+        ("PENDING", "PENDING"),
+        ("RECEIVED", "RECEIVED"),
+    ]
+    bulk_asset = models.ForeignKey(BulkAsset, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    from_department = models.ForeignKey(
+        Department,
+        on_delete=models.PROTECT,
+        related_name="bulk_transfers_out",
+        default=None,
+        null=True,
+        blank=True,
+    )
+    from_branch = models.ForeignKey(
+        Branch,
+        on_delete=models.PROTECT,
+        related_name="bulk_transfers_out",
+        null=True,
+        blank=True,
+    )
+    to_department = models.ForeignKey(
+        Department, on_delete=models.PROTECT, related_name="bulk_transfers_in"
+    )
+    to_branch = models.ForeignKey(
+        Branch,
+        on_delete=models.PROTECT,
+        related_name="bulk_transfers_in",
+        null=True,
+        blank=True,
+    )
+    transfer_date = models.DateField(auto_now_add=True)
+    reason = models.TextField()
+    transfer_status = models.CharField(choices=transfer_options, default="PENDING")
+    sent_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="bulk_transfers_sent",
+        null=True,
+        blank=True,
+    )
+    received_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="bulk_transfers_received",
+        null=True,
+        blank=True,
+    )
+    notes = models.TextField(blank=True)
+    received_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Transfer of {self.bulk_asset.name} to {self.to_department}"
+
+
 class AssetInquiry(models.Model):
     ASSET_TYPES = [
         ("LAPTOP", "Laptop"),

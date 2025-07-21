@@ -15,6 +15,7 @@ admin.site.register(Department)
 admin.site.register(Vendor)
 admin.site.register(AssetCategory)
 admin.site.register(IncomingEquipment)
+admin.site.register(BulkAssetTransfer)
 
 
 @admin.register(AssetTransfer)

@@ -25,7 +25,7 @@
                 <strong>Category:</strong> {{ bulk_asset.category }}
             </li>
             <li class="list-group-item">
-                <strong>Availble:</strong> {{ bulk_asset.available_quantity }}
+                <strong>Available:</strong> {{ bulk_asset.available_quantity }}
             </li>
             <li class="list-group-item">
                 <strong>Current Department:</strong> {{ bulk_asset.assigned_department }}
@@ -91,7 +91,7 @@
                 </div>
             </div>
 
-            <a href="{% url 'individual_assets' %}" class="button-link">Back to Asset Management</a>
+            <a href="{% url 'bulk_assets' %}" class="button-link">Back to Asset Management</a>
         </div>
     </div>
 

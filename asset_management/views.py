@@ -165,24 +165,43 @@ def asset_detail(request, asset_tag):
         }
         return render(request, "assets/asset_detail.html", context)
 
+
 @login_required
 def bulk_asset_detail(request, pk):
     bulk_asset = get_object_or_404(BulkAsset, pk=pk)
+
     if request.method == "POST":
-        form = Modal_BulkTransferAssetForm(request.POST or None)
+        form = Modal_BulkTransferAssetForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Bulk asset updated successfully.")
-            return redirect("bulk_assets")
+            quantity = form.cleaned_data['quantity']
+            
+            if quantity > bulk_asset.available_quantity:
+                messages.error(
+                    request,
+                    f"Cannot transfer {quantity} assets. Only {bulk_asset.available_quantity} are available."
+                )
+                return redirect("bulk_asset_detail", pk=pk)
+
+            # Update bulk asset quantities
+            bulk_asset.available_quantity -= quantity
+            bulk_asset.in_use_quantity += quantity
+            bulk_asset.save()
+
+            # Save transfer using the form's built-in method
+            form.save(bulk_asset=bulk_asset, user=request.user)
+
+            messages.success(
+                request, f"Bulk asset transfer of {quantity} assets submitted successfully."
+            )
+            return redirect("bulk_asset_detail", pk=pk)
     else:
-        form = Modal_BulkTransferAssetForm(request.POST or None)
+        form = Modal_BulkTransferAssetForm()
 
     context = {
         "form": form,
         "bulk_asset": bulk_asset,
     }
     return render(request, "assets/bulk_asset_detail.html", context)
-
 
 def update_asset_location(asset, new_department, new_branch):
     asset.assigned_department = new_department

@@ -18,7 +18,6 @@
                 <th>Category</th>
                 <th>Available</th>
                 <th>In use</th>
-                <th>Department</th>
                 <th>Total Quantity</th>
             </tr>
         </thead>
@@ -29,7 +28,6 @@
                 <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.category }}</a></td>
                 <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.available_quantity }}</a></td>
                 <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.in_use_quantity }}</a></td>
-                <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.location }}</a></td>
                 <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.total_quantity }}</a></td>
             </tr>
             {% endfor %}
