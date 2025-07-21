@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="asset-detail container">
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+
+    <div class="container">
+        <ul class="list-group">
+            <li class="list-group-item active" aria-current="true">
+                <h2 class="low-hearder">Asset Detail: {{ bulk_asset.name }}</h2>
+            </li>
+            <li class="list-group-item">
+                <strong>Asset Name: </strong>{{ bulk_asset.name }}
+            </li>
+            <li class="list-group-item">
+                <strong>Category:</strong> {{ bulk_asset.category }}
+            </li>
+            <li class="list-group-item">
+                <strong>Availble:</strong> {{ bulk_asset.available_quantity }}
+            </li>
+            <li class="list-group-item">
+                <strong>Current Department:</strong> {{ bulk_asset.assigned_department }}
+            </li>
+            <li class="list-group-item">
+                <strong>Current Branch:</strong> {{ bulk_asset.assigned_branch }}
+            </li>
+            <li class="list-group-item">
+                <strong>Purchase Date: </strong> {{ bulk_asset.purchase_date|date:"d M Y" }}
+            </li>
+            <li class=" list-group-item">
+                <strong>Comment: </strong> {{ bulk_asset.notes|default:"No notes available" }}
+            </li>
+        </ul>
+
+        <div class="custom-buttons-container">
+            <button type="button" class="btn btn-primary w-auto" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+                {% if bulk_asset.transfer_status == "PROCESSING" %} disabled {% endif %}>
+                Transfer This Asset
+            </button>
+
+
+            <!-- MODAL -->
+            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Transfer of {{ bulk_asset.category }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" action="{% url 'bulk_asset_detail' bulk_asset.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="pk" value="{{ bulk_asset.pk }}">
+                                <div class="mb-3">
+                                    <label for="{{form.quantity.id}}">{{ form.quantity.label }}</label>
+                                    {{ form.quantity }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{form.to_department.label}}">{{form.to_department.label}}</label>
+                                    {{ form.to_department }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{form.to_branch.label}}">{{form.to_branch.label}}</label>
+                                    {{ form.to_branch }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.reason.label }}" class="form-label">{{ form.reason.label }}
+                                    </label>
+                                    <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
+                                </div>
+                                <div class="modal_buttons">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        Initiate Transfer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{% url 'individual_assets' %}" class="button-link">Back to Asset Management</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var messageBox = document.querySelector(".messages");
+
+            if (messageBox) {
+                setTimeout(function () {
+                    messageBox.classList.add("hidden"); // Apply fade-out effect
+                }, 3000);
+                setTimeout(function () {
+                    messageBox.remove(); // Remove the message box after fade-out
+                }, 4000);
+            }
+        });
+    </script>
+
+    {% endblock %}

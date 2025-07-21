@@ -80,7 +80,7 @@ class NotificationAdmin(admin.ModelAdmin):
     
 @admin.register(BulkAsset)
 class BulkAssetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'total_quantity', 'available_quantity','in_use_quantity', 'depleted_quantity', 'location')
-    list_filter = ('category', 'location')
+    list_display = ('name', 'category', 'total_quantity', 'available_quantity','in_use_quantity', 'depleted_quantity',)
+    list_filter = ('category',)
     search_fields = ('name', 'category__name')
     readonly_fields = ('total_quantity',)

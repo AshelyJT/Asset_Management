@@ -155,6 +155,10 @@ class AssetTransfer(models.Model):
 
 
 class BulkAsset(models.Model):
+    TRANSFER_STATUS = [
+        ("PROCESSING", "PROCESSING"),
+        ("RECEIVED", "RECEIVED"),
+    ]
     name = models.CharField(max_length=200)
     category = models.ForeignKey(AssetCategory, on_delete=models.PROTECT)
     available_quantity = models.PositiveIntegerField(default=0)
@@ -171,7 +175,13 @@ class BulkAsset(models.Model):
         ],
         default="AVAILABLE",
     )
-    location = models.ForeignKey(Department, on_delete=models.PROTECT)
+    assigned_department = models.ForeignKey(
+        Department, on_delete=models.PROTECT, related_name="bulk_assets", null=True, blank=True
+    )
+    assigned_branch = models.ForeignKey(
+        Branch, on_delete=models.PROTECT, related_name="bulk_assets", null=True, blank=True
+    )
+    transfer_status = models.CharField(choices=TRANSFER_STATUS, default="RECEIVED")
 
     @property
     def total_quantity(self):

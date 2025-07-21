@@ -35,6 +35,46 @@ class Modal_TransferAssetForm(forms.Form):
             "rows": 3
         })
     )
+    
+class Modal_BulkTransferAssetForm(forms.Form):
+    empty_label = "--------------"
+    
+    quantity = forms.IntegerField(
+        min_value=1,
+        label="Quantity:",
+        widget=forms.NumberInput(attrs={
+            "class": "form-control",
+            "required": "required"
+        })
+    )
+    to_department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        label="To Department:",
+        empty_label=empty_label,
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "required": "required"
+        }),
+    )
+    
+    to_branch = forms.ModelChoiceField(
+        queryset=Branch.objects.all(),
+        label="To Branch:",
+        empty_label=empty_label,
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "required": "required"
+        }),
+    )
+
+    reason = forms.CharField(
+        max_length=200,
+        label="Reason for Transfer:",
+        widget=forms.Textarea(attrs={
+            "class": "form-control",
+            "rows": 3
+        })
+    )
 
 
 class AssetForm(forms.ModelForm):
@@ -55,7 +95,7 @@ class BulkAssetForm(forms.ModelForm):
         model = BulkAsset
         fields = [
             "name", "category", "purchase_date", 
-            "vendor", "status", "location"
+            "vendor", "status"
         ]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
@@ -66,7 +106,6 @@ class BulkAssetForm(forms.ModelForm):
             }),
             "vendor": forms.Select(attrs={"class": "form-control"}),
             "status": forms.Select(attrs={"class": "form-control"}),
-            "location": forms.Select(attrs={"class": "form-control"}),
         }
 
 

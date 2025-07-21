@@ -18,6 +18,7 @@ urlpatterns = [
     path('inquire/', views.inquire_asset, name='inquire_asset'),
     path('reports/', views.reports, name='reports'),
     path('bulk_assets/', views.bulk_assets, name='bulk_assets'),
+    path('bulk_assets/<int:pk>/', views.bulk_asset_detail, name='bulk_asset_detail'),
     path('reports/assets/', views.asset_reports, name='asset_reports'),
     path('incoming/', views.incoming_equipment_list, name='incoming_equipment_list'),
     path('incoming/<int:pk>/', views.incoming_equipment_detail, name='incoming_equipment_detail'),

@@ -25,12 +25,12 @@
         <tbody>
             {% for bulk_asset in bulk_assets %}
             <tr>
-                <td>{{ bulk_asset.name }}</td>
-                <td>{{ bulk_asset.category }}</td>
-                <td>{{ bulk_asset.available_quantity }}</td>
-                <td>{{ bulk_asset.in_use_quantity }}</td>
-                <td>{{ bulk_asset.location }}</td>
-                <td>{{ bulk_asset.total_quantity }}</td>
+                <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.name }}</a></td>
+                <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.category }}</a></td>
+                <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.available_quantity }}</a></td>
+                <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.in_use_quantity }}</a></td>
+                <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.location }}</a></td>
+                <td><a href="{% url 'bulk_asset_detail' bulk_asset.pk %}" class="link">{{ bulk_asset.total_quantity }}</a></td>
             </tr>
             {% endfor %}
         </tbody>

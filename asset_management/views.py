@@ -165,6 +165,24 @@ def asset_detail(request, asset_tag):
         }
         return render(request, "assets/asset_detail.html", context)
 
+@login_required
+def bulk_asset_detail(request, pk):
+    bulk_asset = get_object_or_404(BulkAsset, pk=pk)
+    if request.method == "POST":
+        form = Modal_BulkTransferAssetForm(request.POST or None)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Bulk asset updated successfully.")
+            return redirect("bulk_assets")
+    else:
+        form = Modal_BulkTransferAssetForm(request.POST or None)
+
+    context = {
+        "form": form,
+        "bulk_asset": bulk_asset,
+    }
+    return render(request, "assets/bulk_asset_detail.html", context)
+
 
 def update_asset_location(asset, new_department, new_branch):
     asset.assigned_department = new_department
